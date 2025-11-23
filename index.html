@@ -47,11 +47,46 @@
             font-size: 0.9em;
         }
 
-        /* Quiz Section */
-        #quiz-container {
-            display: block;
+        /* --- Login Styles --- */
+        .login-box {
+            max-width: 300px;
+            margin: 0 auto;
+            text-align: left;
         }
 
+        .login-input {
+            width: 100%;
+            padding: 15px;
+            margin-bottom: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 1rem;
+            box-sizing: border-box;
+            transition: border-color 0.3s;
+        }
+
+        .login-input:focus {
+            border-color: var(--primary-color);
+            outline: none;
+        }
+
+        .login-btn {
+            width: 100%;
+            padding: 15px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .login-btn:hover {
+            background-color: #357abd;
+        }
+
+        /* --- Quiz Section --- */
         .question-counter {
             font-size: 1.2rem;
             font-weight: bold;
@@ -86,9 +121,8 @@
             transform: translateY(-2px);
         }
 
-        /* Result Section */
+        /* --- Result Section --- */
         #result-container {
-            display: none;
             text-align: left;
         }
 
@@ -185,21 +219,31 @@
 <body>
 
 <div class="container">
-    <!-- 測驗區域 -->
-    <div id="quiz-container">
+    
+    <div id="login-container">
+        <h1>DISC 測驗系統</h1>
+        <p class="subtitle">內部測試系統，請登入以繼續</p>
+        
+        <div class="login-box">
+            <input type="text" id="username" placeholder="請輸入帳號" class="login-input">
+            <input type="password" id="password" placeholder="請輸入密碼" class="login-input">
+            <button class="login-btn" onclick="checkLogin()">登入系統</button>
+            <p id="login-error" style="color:red; display:none; margin-top:10px; text-align:center;">帳號或密碼錯誤</p>
+        </div>
+    </div>
+
+    <div id="quiz-container" style="display: none;">
         <h1>DISC 人格特質測驗</h1>
         <p class="subtitle">請從以下四個選項中，直覺選出最符合您目前狀態的一個。</p>
         
         <div class="question-counter">題目 <span id="current-q">1</span> / <span id="total-q">10</span></div>
-        <div class="question-text">我覺得自己通常是...</div>
+        <div class="question-text">題目載入中...</div>
         
         <div class="options-grid" id="options-area">
-            <!-- 選項會由 JS 動態生成 -->
-        </div>
+            </div>
     </div>
 
-    <!-- 結果區域 -->
-    <div id="result-container">
+    <div id="result-container" style="display: none;">
         <div class="result-header">
             <h2>測驗結果分析</h2>
             <div class="animal-icon" id="result-icon">🐯</div>
@@ -232,17 +276,20 @@
         </div>
 
         <div id="analysis-content">
-            <!-- 詳細分析內容 -->
-        </div>
+            </div>
 
         <button class="restart-btn" onclick="restartQuiz()">重新測驗</button>
     </div>
 </div>
 
 <script>
-    // --- 資料設定 (簡化版題目，正式測驗通常有20-40題) ---
-    // D=Dominance(支配), I=Influence(影響), S=Steadiness(穩健), C=Compliance(分析)
-   const questions = [
+    // --- 安全性設定 ---
+    // 警告：此為前端靜態驗證，安全性較低，僅適用於簡易防護
+    const VALID_USER = "admin"; // 在此修改帳號
+    const VALID_PASS = "1234";  // 在此修改密碼
+
+    // --- 資料設定 ---
+    const questions = [
         {
             text: "1. 當你和朋友一起去吃飯，你需要做決定時，你通常會...",
             options: [
@@ -425,7 +472,6 @@
         }
     ];
 
-    // --- 結果分析資料庫 ---
     const resultsData = {
         "D": {
             title: "支配型 - 孫悟空 (Dominance)",
@@ -473,6 +519,8 @@
     let currentQuestionIndex = 0;
     let scores = { D: 0, I: 0, S: 0, C: 0 };
 
+    // DOM 元素
+    const loginContainer = document.getElementById('login-container');
     const quizContainer = document.getElementById('quiz-container');
     const resultContainer = document.getElementById('result-container');
     const questionText = document.querySelector('.question-text');
@@ -483,9 +531,41 @@
     // 初始化
     function init() {
         totalQSpan.textContent = questions.length;
-        loadQuestion();
+        // 注意：這裡不呼叫 loadQuestion()，等待登入成功後才呼叫
     }
 
+    // --- 登入功能 ---
+    function checkLogin() {
+        const userInput = document.getElementById('username').value;
+        const passInput = document.getElementById('password').value;
+        const errorMsg = document.getElementById('login-error');
+
+        if (userInput === VALID_USER && passInput === VALID_PASS) {
+            // 登入成功
+            loginContainer.style.display = 'none';
+            quizContainer.style.display = 'block';
+            loadQuestion(); // 開始載入題目
+        } else {
+            // 登入失敗
+            errorMsg.style.display = 'block';
+            // 錯誤動畫
+            document.querySelector('.login-box').animate([
+                { transform: 'translateX(-10px)' },
+                { transform: 'translateX(10px)' },
+                { transform: 'translateX(0)' }
+            ], { duration: 300 });
+        }
+    }
+
+    // 支援按 Enter 鍵登入
+    document.getElementById('password').addEventListener('keypress', function (e) {
+        if (e.key === 'Enter') {
+            checkLogin();
+        }
+    });
+
+
+    // --- 測驗功能 ---
     function loadQuestion() {
         const currentQ = questions[currentQuestionIndex];
         currentQSpan.textContent = currentQuestionIndex + 1;
@@ -493,7 +573,7 @@
         
         optionsArea.innerHTML = ''; // 清空舊選項
 
-        // 隨機打亂選項順序 (避免使用者猜測固定位置)
+        // 隨機打亂選項順序
         const shuffledOptions = [...currentQ.options].sort(() => Math.random() - 0.5);
 
         shuffledOptions.forEach(opt => {
@@ -507,7 +587,6 @@
 
     function handleAnswer(type) {
         scores[type]++; // 加分
-
         currentQuestionIndex++;
 
         if (currentQuestionIndex < questions.length) {
@@ -521,11 +600,10 @@
         quizContainer.style.display = 'none';
         resultContainer.style.display = 'block';
 
-        // 計算最高分
+        // 找出最高分
         let maxScore = -1;
         let maxType = '';
         
-        // 找出最高分 (若同分，這裡簡單取第一個，複雜邏輯可再擴充)
         for (const [type, score] of Object.entries(scores)) {
             if (score > maxScore) {
                 maxScore = score;
@@ -579,8 +657,10 @@
     function restartQuiz() {
         currentQuestionIndex = 0;
         scores = { D: 0, I: 0, S: 0, C: 0 };
-        quizContainer.style.display = 'block';
+        
+        // 重新測驗時，直接顯示測驗畫面 (不需要重新登入)
         resultContainer.style.display = 'none';
+        quizContainer.style.display = 'block';
         loadQuestion();
     }
 
