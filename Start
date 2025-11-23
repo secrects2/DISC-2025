@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>DISC 人格特質測驗與分析</title>
+    <style>
+        :root {
+            --primary-color: #4a90e2;
+            --bg-color: #f4f7f6;
+            --card-bg: #ffffff;
+            --d-color: #ff4d4d; /* Red for Dominance */
+            --i-color: #ffd700; /* Yellow for Influence */
+            --s-color: #4caf50; /* Green for Steadiness */
+            --c-color: #2196f3; /* Blue for Compliance */
+        }
+
+        body {
+            font-family: 'Microsoft JhengHei', Arial, sans-serif;
+            background-color: var(--bg-color);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: #333;
+        }
+
+        .container {
+            background-color: var(--card-bg);
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            padding: 40px;
+            text-align: center;
+        }
+
+        h1 {
+            color: #2c3e50;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #7f8c8d;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        /* Quiz Section */
+        #quiz-container {
+            display: block;
+        }
+
+        .question-counter {
+            font-size: 1.2rem;
+            font-weight: bold;
+            margin-bottom: 20px;
+            color: var(--primary-color);
+        }
+
+        .question-text {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+        }
+
+        .options-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .option-btn {
+            padding: 20px;
+            border: 2px solid #e0e0e0;
+            background: white;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 1.1rem;
+            transition: all 0.3s ease;
+        }
+
+        .option-btn:hover {
+            border-color: var(--primary-color);
+            background-color: #eef6fc;
+            transform: translateY(-2px);
+        }
+
+        /* Result Section */
+        #result-container {
+            display: none;
+            text-align: left;
+        }
+
+        .result-header {
+            text-align: center;
+            margin-bottom: 40px;
+        }
+
+        .main-type {
+            font-size: 3rem;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .animal-icon {
+            font-size: 4rem;
+            margin-bottom: 10px;
+        }
+
+        .chart-container {
+            margin: 30px 0;
+        }
+
+        .bar-row {
+            display: flex;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .bar-label {
+            width: 40px;
+            font-weight: bold;
+        }
+
+        .bar-bg {
+            flex-grow: 1;
+            background: #eee;
+            height: 20px;
+            border-radius: 10px;
+            overflow: hidden;
+            margin: 0 10px;
+        }
+
+        .bar-fill {
+            height: 100%;
+            width: 0%;
+            transition: width 1s ease-in-out;
+        }
+
+        .bar-value {
+            width: 30px;
+            text-align: right;
+        }
+
+        .analysis-box {
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+            border-left: 5px solid #ccc;
+        }
+
+        .analysis-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+            display: block;
+        }
+
+        .restart-btn {
+            display: block;
+            margin: 40px auto 0;
+            padding: 15px 40px;
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1rem;
+            cursor: pointer;
+            transition: background 0.3s;
+        }
+
+        .restart-btn:hover {
+            background-color: #357abd;
+        }
+
+        @media (max-width: 600px) {
+            .options-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- 測驗區域 -->
+    <div id="quiz-container">
+        <h1>DISC 人格特質測驗</h1>
+        <p class="subtitle">請從以下四個選項中，直覺選出最符合您目前狀態的一個。</p>
+        
+        <div class="question-counter">題目 <span id="current-q">1</span> / <span id="total-q">10</span></div>
+        <div class="question-text">我覺得自己通常是...</div>
+        
+        <div class="options-grid" id="options-area">
+            <!-- 選項會由 JS 動態生成 -->
+        </div>
+    </div>
+
+    <!-- 結果區域 -->
+    <div id="result-container">
+        <div class="result-header">
+            <h2>測驗結果分析</h2>
+            <div class="animal-icon" id="result-icon">🐯</div>
+            <div class="main-type" id="result-type">Type</div>
+            <p id="result-slogan" style="font-style: italic; color: #666;">一句話描述</p>
+        </div>
+
+        <div class="chart-container">
+            <h3>得分比例</h3>
+            <div class="bar-row">
+                <div class="bar-label" style="color: var(--d-color)">D</div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-d" style="background: var(--d-color)"></div></div>
+                <div class="bar-value" id="val-d">0</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label" style="color: var(--i-color)">I</div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-i" style="background: var(--i-color)"></div></div>
+                <div class="bar-value" id="val-i">0</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label" style="color: var(--s-color)">S</div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-s" style="background: var(--s-color)"></div></div>
+                <div class="bar-value" id="val-s">0</div>
+            </div>
+            <div class="bar-row">
+                <div class="bar-label" style="color: var(--c-color)">C</div>
+                <div class="bar-bg"><div class="bar-fill" id="bar-c" style="background: var(--c-color)"></div></div>
+                <div class="bar-value" id="val-c">0</div>
+            </div>
+        </div>
+
+        <div id="analysis-content">
+            <!-- 詳細分析內容 -->
+        </div>
+
+        <button class="restart-btn" onclick="restartQuiz()">重新測驗</button>
+    </div>
+</div>
+
+<script>
+    // --- 資料設定 (簡化版題目，正式測驗通常有20-40題) ---
+    // D=Dominance(支配), I=Influence(影響), S=Steadiness(穩健), C=Compliance(分析)
+    const questions = [
+        {
+            text: "在團體中，我通常...",
+            options: [
+                { text: "喜歡掌控大局，做決定", type: "D" },
+                { text: "喜歡帶動氣氛，認識朋友", type: "I" },
+                { text: "喜歡配合大家，保持和諧", type: "S" },
+                { text: "喜歡觀察細節，分析利弊", type: "C" }
+            ]
+        },
+        {
+            text: "遇到困難的任務時，我會...",
+            options: [
+                { text: "立即行動，克服挑戰", type: "D" },
+                { text: "找人討論，尋求合作", type: "I" },
+                { text: "按部就班，穩定進行", type: "S" },
+                { text: "仔細研究，確保無誤", type: "C" }
+            ]
+        },
+        {
+            text: "與人溝通時，我比較傾向...",
+            options: [
+                { text: "直接了當，講重點", type: "D" },
+                { text: "生動有趣，多肢體語言", type: "I" },
+                { text: "溫和委婉，多傾聽", type: "S" },
+                { text: "講究邏輯，用數據說話", type: "C" }
+            ]
+        },
+        {
+            text: "我希望別人怎麼看我？",
+            options: [
+                { text: "有能力、有權威的", type: "D" },
+                { text: "受歡迎、有魅力的", type: "I" },
+                { text: "好相處、可信賴的", type: "S" },
+                { text: "有條理、精準的", type: "C" }
+            ]
+        },
+        {
+            text: "做決策時，我看重的是...",
+            options: [
+                { text: "結果與效率", type: "D" },
+                { text: "感覺與人際影響", type: "I" },
+                { text: "安全感與穩定性", type: "S" },
+                { text: "正確性與品質", type: "C" }
+            ]
+        },
+        // 為了演示效果，這裡只放5題，您可以自行複製格式增加題目
+        {
+            text: "面對壓力時，我的反應是...",
+            options: [
+                { text: "變得強勢，急躁", type: "D" },
+                { text: "想要逃避，找人訴苦", type: "I" },
+                { text: "默默忍受，甚至妥協", type: "S" },
+                { text: "變得挑剔，鑽牛角尖", type: "C" }
+            ]
+        }
+    ];
+
+    // --- 結果分析資料庫 ---
+    const resultsData = {
+        "D": {
+            title: "支配型 (Dominance) - 老虎",
+            slogan: "目標導向的行動派",
+            icon: "🐯",
+            color: "var(--d-color)",
+            traits: "自信、果斷、積極、好勝、喜歡掌控、重視結果。",
+            strengths: "決策迅速、執行力強、勇於接受挑戰。",
+            weaknesses: "容易缺乏耐心、忽視他人感受、固執己見。",
+            advice: "試著多傾聽他人的意見，學習放慢腳步，關注過程中的人際關係。"
+        },
+        "I": {
+            title: "影響型 (Influence) - 孔雀",
+            slogan: "熱情洋溢的社交家",
+            icon: "🦚",
+            color: "var(--i-color)",
+            traits: "樂觀、熱情、善於表達、喜歡交際、重視人際關係。",
+            strengths: "有說服力、能激勵他人、充滿創意與活力。",
+            weaknesses: "容易衝動、缺乏細節關注、情緒起伏較大。",
+            advice: "學習時間管理，專注於細節執行，避免承諾過多而無法兌現。"
+        },
+        "S": {
+            title: "穩健型 (Steadiness) - 無尾熊",
+            slogan: "溫和可靠的支持者",
+            icon: "🐨",
+            color: "var(--s-color)",
+            traits: "穩重、友善、有耐心、善於傾聽、不喜歡改變。",
+            strengths: "忠誠度高、團隊合作佳、做事有條理且穩定。",
+            weaknesses: "優柔寡斷、害怕衝突、過於安於現狀。",
+            advice: "試著勇於表達自己的需求，適度接受改變與新挑戰。"
+        },
+        "C": {
+            title: "分析型 (Compliance) - 貓頭鷹",
+            slogan: "謹慎完美的思考者",
+            icon: "🦉",
+            color: "var(--c-color)",
+            traits: "精準、邏輯強、謹慎、追求完美、重視規則。",
+            strengths: "分析能力強、注重品質、善於規劃與解決問題。",
+            weaknesses: "過於挑剔、容易陷入細節、缺乏彈性。",
+            advice: "接受「不完美」也是一種美，學習放鬆，不要給自己和他人過大壓力。"
+        }
+    };
+
+    // --- 程式邏輯 ---
+    let currentQuestionIndex = 0;
+    let scores = { D: 0, I: 0, S: 0, C: 0 };
+
+    const quizContainer = document.getElementById('quiz-container');
+    const resultContainer = document.getElementById('result-container');
+    const questionText = document.querySelector('.question-text');
+    const optionsArea = document.getElementById('options-area');
+    const currentQSpan = document.getElementById('current-q');
+    const totalQSpan = document.getElementById('total-q');
+
+    // 初始化
+    function init() {
+        totalQSpan.textContent = questions.length;
+        loadQuestion();
+    }
+
+    function loadQuestion() {
+        const currentQ = questions[currentQuestionIndex];
+        currentQSpan.textContent = currentQuestionIndex + 1;
+        questionText.textContent = currentQ.text;
+        
+        optionsArea.innerHTML = ''; // 清空舊選項
+
+        // 隨機打亂選項順序 (避免使用者猜測固定位置)
+        const shuffledOptions = [...currentQ.options].sort(() => Math.random() - 0.5);
+
+        shuffledOptions.forEach(opt => {
+            const btn = document.createElement('button');
+            btn.className = 'option-btn';
+            btn.textContent = opt.text;
+            btn.onclick = () => handleAnswer(opt.type);
+            optionsArea.appendChild(btn);
+        });
+    }
+
+    function handleAnswer(type) {
+        scores[type]++; // 加分
+
+        currentQuestionIndex++;
+
+        if (currentQuestionIndex < questions.length) {
+            loadQuestion();
+        } else {
+            showResult();
+        }
+    }
+
+    function showResult() {
+        quizContainer.style.display = 'none';
+        resultContainer.style.display = 'block';
+
+        // 計算最高分
+        let maxScore = -1;
+        let maxType = '';
+        
+        // 找出最高分 (若同分，這裡簡單取第一個，複雜邏輯可再擴充)
+        for (const [type, score] of Object.entries(scores)) {
+            if (score > maxScore) {
+                maxScore = score;
+                maxType = type;
+            }
+        }
+
+        // 更新圖表
+        const total = questions.length;
+        updateBar('d', scores.D, total);
+        updateBar('i', scores.I, total);
+        updateBar('s', scores.S, total);
+        updateBar('c', scores.C, total);
+
+        // 顯示分析文字
+        const result = resultsData[maxType];
+        
+        document.getElementById('result-icon').textContent = result.icon;
+        document.getElementById('result-type').textContent = result.title;
+        document.getElementById('result-type').style.color = result.color;
+        document.getElementById('result-slogan').textContent = result.slogan;
+
+        const analysisHTML = `
+            <div class="analysis-box" style="border-left-color: ${result.color}">
+                <span class="analysis-title" style="color: ${result.color}">🌟 人格特質</span>
+                <p>${result.traits}</p>
+            </div>
+            <div class="analysis-box" style="border-left-color: ${result.color}">
+                <span class="analysis-title" style="color: ${result.color}">💪 優勢天賦</span>
+                <p>${result.strengths}</p>
+            </div>
+            <div class="analysis-box" style="border-left-color: ${result.color}">
+                <span class="analysis-title" style="color: ${result.color}">⚠️ 潛在盲點</span>
+                <p>${result.weaknesses}</p>
+            </div>
+            <div class="analysis-box" style="border-left-color: ${result.color}">
+                <span class="analysis-title" style="color: ${result.color}">💡 發展建議</span>
+                <p>${result.advice}</p>
+            </div>
+        `;
+        
+        document.getElementById('analysis-content').innerHTML = analysisHTML;
+    }
+
+    function updateBar(type, score, total) {
+        const percentage = (score / total) * 100;
+        document.getElementById(`bar-${type}`).style.width = `${percentage}%`;
+        document.getElementById(`val-${type}`).textContent = score;
+    }
+
+    function restartQuiz() {
+        currentQuestionIndex = 0;
+        scores = { D: 0, I: 0, S: 0, C: 0 };
+        quizContainer.style.display = 'block';
+        resultContainer.style.display = 'none';
+        loadQuestion();
+    }
+
+    // 啟動程式
+    init();
+
+</script>
+
+</body>
+</html>
