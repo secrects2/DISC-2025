@@ -1,6 +1,6 @@
 /* ============================================================
-   DISC 测验系统 — 自定义样式覆写 (基于 Bootstrap 5)
-   日系简约风格：浅色、卡片阴影、柔和色彩
+   DISC 測驗系統 — 自定義樣式覆寫 (基於 Bootstrap 5)
+   日系簡約風格：淺色、卡片陰影、柔和色彩
    ============================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Inter:wght@300;400;500;600;700&display=swap');
@@ -16,7 +16,7 @@
   --c-color: #2980b9;
   --c-bg: #ebf5fb;
 
-  /* 基础色 */
+  /* 基礎色 */
   --bg-main: #f8f9fc;
   --bg-card: #ffffff;
   --text-dark: #2c3e50;
@@ -33,7 +33,7 @@ body {
   min-height: 100vh;
 }
 
-/* --- 卡片增强 --- */
+/* --- 卡片增強 --- */
 .card {
   border: none;
   border-radius: 16px;
@@ -49,7 +49,7 @@ body {
   padding: 1.5rem;
 }
 
-/* --- 按钮增强 --- */
+/* --- 按鈕增強 --- */
 .btn {
   border-radius: 10px;
   font-weight: 500;
@@ -80,7 +80,7 @@ body {
   color: var(--text-dark);
 }
 
-/* --- 输入框增强 --- */
+/* --- 輸入框增強 --- */
 .form-control {
   border-radius: 10px;
   border: 1.5px solid var(--border-light);
@@ -93,7 +93,7 @@ body {
   box-shadow: 0 0 0 3px rgba(108, 92, 231, 0.15);
 }
 
-/* --- 表格增强 --- */
+/* --- 表格增強 --- */
 .table {
   font-size: 0.9rem;
 }
@@ -118,7 +118,7 @@ body {
   background-color: rgba(108, 92, 231, 0.03);
 }
 
-/* --- 进度条 --- */
+/* --- 進度條 --- */
 .progress {
   border-radius: 20px;
   height: 8px;
@@ -131,7 +131,7 @@ body {
   transition: width 0.4s ease;
 }
 
-/* --- DISC 条形图 --- */
+/* --- DISC 條形圖 --- */
 .disc-bar {
   display: flex;
   align-items: center;
@@ -171,7 +171,7 @@ body {
   flex-shrink: 0;
 }
 
-/* --- 选项按钮 --- */
+/* --- 選項按鈕 --- */
 .option-card {
   cursor: pointer;
   border: 1.5px solid var(--border-light);
@@ -230,13 +230,13 @@ body {
   color: var(--c-color);
 }
 
-/* --- 加载动画 --- */
+/* --- 載入動畫 --- */
 .spinner-border-sm {
   width: 1rem;
   height: 1rem;
 }
 
-/* --- 简单动画 --- */
+/* --- 簡單動畫 --- */
 @keyframes fadeInUp {
   from {
     opacity: 0;
@@ -281,7 +281,7 @@ body {
   animation: shake 0.4s ease;
 }
 
-/* --- 响应式 --- */
+/* --- 響應式 --- */
 @media (max-width: 576px) {
   .card-body {
     padding: 1rem;

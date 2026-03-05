@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>DISC 管理后台</title>
+    <title>DISC 管理後臺</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -78,7 +78,7 @@
     <header class="admin-header">
         <div class="container d-flex align-items-center justify-content-between">
             <span style="font-weight:700;color:var(--accent);font-size:1.05rem"><i
-                    class="bi bi-shield-check me-1"></i>DISC 管理后台</span>
+                    class="bi bi-shield-check me-1"></i>DISC 管理後臺</span>
             <div class="d-flex align-items-center gap-2">
                 <small class="text-muted d-none d-sm-inline" id="adminName"></small>
                 <button class="btn btn-sm btn-outline-secondary" id="btnLogout"><i
@@ -88,64 +88,64 @@
     </header>
 
     <main class="container py-4">
-        <!-- 统计 -->
+        <!-- 統計 -->
         <div class="row g-3 mb-4">
             <div class="col-6 col-md-3">
                 <div class="card stat-card">
                     <div class="num text-primary" id="statTotal">--</div>
-                    <div class="label">总测验次数</div>
+                    <div class="label">總測驗次數</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--d-color)" id="statD">--</div>
-                    <div class="label">D 型人数</div>
+                    <div class="label">D 型人數</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--i-color)" id="statI">--</div>
-                    <div class="label">I 型人数</div>
+                    <div class="label">I 型人數</div>
                 </div>
             </div>
             <div class="col-6 col-md-3">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--s-color)" id="statS">--</div>
-                    <div class="label">S 型人数</div>
+                    <div class="label">S 型人數</div>
                 </div>
             </div>
         </div>
 
-        <!-- 分布图 -->
+        <!-- 分佈圖 -->
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="section-title"><i class="bi bi-pie-chart-fill text-muted"></i>DISC 类型分布</h6>
+                <h6 class="section-title"><i class="bi bi-pie-chart-fill text-muted"></i>DISC 型別分佈</h6>
                 <div style="max-width:360px;margin:0 auto"><canvas id="pieChart"></canvas></div>
             </div>
         </div>
 
-        <!-- 查询 -->
+        <!-- 查詢 -->
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="section-title mb-3"><i class="bi bi-search text-muted"></i>测验记录查询</h6>
+                <h6 class="section-title mb-3"><i class="bi bi-search text-muted"></i>測驗記錄查詢</h6>
                 <div class="row g-2 mb-3">
                     <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fName" placeholder="姓名">
                     </div>
-                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fRef" placeholder="推荐码">
+                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fRef" placeholder="推薦碼">
                     </div>
                     <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fFrom" type="date">
                     </div>
                     <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fTo" type="date"></div>
                 </div>
                 <div class="d-flex gap-2">
-                    <button class="btn btn-primary btn-sm" id="btnSearch"><i class="bi bi-search me-1"></i>查询</button>
+                    <button class="btn btn-primary btn-sm" id="btnSearch"><i class="bi bi-search me-1"></i>查詢</button>
                     <button class="btn btn-outline-secondary btn-sm" id="btnExport"><i
-                            class="bi bi-download me-1"></i>汇出 CSV</button>
+                            class="bi bi-download me-1"></i>匯出 CSV</button>
                 </div>
             </div>
         </div>
 
-        <!-- 结果表 -->
+        <!-- 結果表 -->
         <div class="card mb-4">
             <div class="card-body p-0">
                 <div class="table-responsive">
@@ -161,11 +161,11 @@
             </div>
         </div>
 
-        <!-- 用户管理 -->
+        <!-- 使用者管理 -->
         <div class="card mb-4">
             <div class="card-body">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h6 class="section-title mb-0"><i class="bi bi-people-fill text-muted"></i>使用者帐号管理</h6>
+                    <h6 class="section-title mb-0"><i class="bi bi-people-fill text-muted"></i>使用者帳號管理</h6>
                     <div class="d-flex gap-2">
                         <button class="btn btn-sm btn-primary" id="btnAddUser"><i
                                 class="bi bi-plus-lg me-1"></i>新增</button>
@@ -177,12 +177,12 @@
                     <table class="table table-hover mb-0" id="tblUsers">
                         <thead>
                             <tr>
-                                <th>帐号</th>
+                                <th>帳號</th>
                                 <th>姓名</th>
                                 <th>角色</th>
-                                <th>推荐码</th>
-                                <th>状态</th>
-                                <th>密码</th>
+                                <th>推薦碼</th>
+                                <th>狀態</th>
+                                <th>密碼</th>
                                 <th>操作</th>
                             </tr>
                         </thead>
@@ -192,7 +192,7 @@
             </div>
         </div>
 
-        <!-- 新增用户 Modal -->
+        <!-- 新增使用者 Modal -->
         <div class="modal fade" id="addUserModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -201,24 +201,24 @@
                             data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-2"><label class="form-label">帐号 <span class="text-danger">*</span></label><input
+                        <div class="mb-2"><label class="form-label">帳號 <span class="text-danger">*</span></label><input
                                 class="form-control" id="nuUser"></div>
-                        <div class="mb-2"><label class="form-label">密码 <span class="text-danger">*</span></label><input
+                        <div class="mb-2"><label class="form-label">密碼 <span class="text-danger">*</span></label><input
                                 class="form-control" id="nuPass"></div>
                         <div class="mb-2"><label class="form-label">姓名</label><input class="form-control" id="nuName">
                         </div>
                         <div class="mb-2"><label class="form-label">角色</label>
                             <select class="form-select" id="nuRole">
-                                <option value="user">一般用户</option>
-                                <option value="influencer">网红</option>
-                                <option value="admin">管理员</option>
+                                <option value="user">一般使用者</option>
+                                <option value="influencer">網紅</option>
+                                <option value="admin">管理員</option>
                             </select>
                         </div>
-                        <div class="mb-2"><label class="form-label">部门</label><input class="form-control" id="nuDept">
+                        <div class="mb-2"><label class="form-label">部門</label><input class="form-control" id="nuDept">
                         </div>
                         <div id="nuError" class="text-danger mt-2" style="font-size:0.85rem"></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-primary" id="btnSaveUser">保存</button></div>
+                    <div class="modal-footer"><button class="btn btn-primary" id="btnSaveUser">儲存</button></div>
                 </div>
             </div>
         </div>
@@ -229,13 +229,13 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="supabase-config.js"></script>
     <script>
-        /* ===== 权限 ===== */
+        /* ===== 許可權 ===== */
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
-        if (!user || user.role !== 'admin') { alert('需要管理者权限'); window.location.href = 'login.html'; }
+        if (!user || user.role !== 'admin') { alert('需要管理者許可權'); window.location.href = 'login.html'; }
         document.getElementById('adminName').textContent = user.name || user.username;
         document.getElementById('btnLogout').onclick = () => { sessionStorage.removeItem('user'); window.location.href = 'login.html'; };
 
-        /* ===== 查询 ===== */
+        /* ===== 查詢 ===== */
         let allRecords = [];
         document.getElementById('btnSearch').onclick = loadRecords;
 
@@ -251,7 +251,7 @@
             if (to) query = query.lte('created_at', to + 'T23:59:59');
 
             const { data, error } = await query;
-            if (error) { alert('查询失败：' + error.message); return; }
+            if (error) { alert('查詢失敗：' + error.message); return; }
             allRecords = data || [];
             renderTable(allRecords);
             updateStats(allRecords);
@@ -261,9 +261,9 @@
             const thead = document.querySelector('#tbl thead tr');
             const tbody = document.querySelector('#tbl tbody');
             thead.innerHTML = ''; tbody.innerHTML = '';
-            if (!rows.length) { thead.innerHTML = '<th class="text-center text-muted">暂无数据</th>'; document.getElementById('meta').textContent = ''; return; }
+            if (!rows.length) { thead.innerHTML = '<th class="text-center text-muted">暫無資料</th>'; document.getElementById('meta').textContent = ''; return; }
 
-            thead.innerHTML = '<th>时间</th><th>姓名</th><th>电话</th><th>组织</th><th>部门</th><th>推荐码</th><th>D</th><th>I</th><th>S</th><th>C</th><th>主型</th><th>图表</th>';
+            thead.innerHTML = '<th>時間</th><th>姓名</th><th>電話</th><th>組織</th><th>部門</th><th>推薦碼</th><th>D</th><th>I</th><th>S</th><th>C</th><th>主型</th><th>圖表</th>';
             rows.forEach((r, i) => {
                 const d = new Date(r.created_at);
                 const colors = { D: 'var(--d-color)', I: 'var(--i-color)', S: 'var(--s-color)', C: 'var(--c-color)' };
@@ -283,7 +283,7 @@
                 tbody.appendChild(tr);
                 new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels: ['D', 'I', 'S', 'C'], datasets: [{ data: [r.d_score, r.i_score, r.s_score, r.c_score], backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderRadius: 3 }] }, options: { responsive: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } } } });
             });
-            document.getElementById('meta').textContent = `共 ${rows.length} 笔`;
+            document.getElementById('meta').textContent = `共 ${rows.length} 筆`;
         }
 
         function updateStats(rows) {
@@ -300,7 +300,7 @@
         function renderPie(data) {
             const ctx = document.getElementById('pieChart').getContext('2d');
             if (pieInst) pieInst.destroy();
-            pieInst = new Chart(ctx, { type: 'doughnut', data: { labels: ['D 支配型', 'I 影响型', 'S 稳健型', 'C 分析型'], datasets: [{ data, backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } } } });
+            pieInst = new Chart(ctx, { type: 'doughnut', data: { labels: ['D 支配型', 'I 影響型', 'S 穩健型', 'C 分析型'], datasets: [{ data, backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } } } });
         }
 
         /* ===== CSV ===== */
@@ -310,13 +310,13 @@
             const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `disc_records_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
         };
 
-        /* ===== 用户管理 ===== */
+        /* ===== 使用者管理 ===== */
         const tblBody = document.querySelector('#tblUsers tbody');
         document.getElementById('btnLoadUsers').onclick = loadUsers;
 
         async function loadUsers() {
             const { data, error } = await db.from('users').select('*').order('created_at', { ascending: false });
-            if (error) { alert('载入失败'); return; }
+            if (error) { alert('載入失敗'); return; }
             renderUsers(data || []);
         }
 
@@ -324,44 +324,44 @@
             tblBody.innerHTML = '';
             rows.forEach(u => {
                 const tr = document.createElement('tr');
-                const roleMap = { admin: '管理员', influencer: '网红', user: '用户' };
+                const roleMap = { admin: '管理員', influencer: '網紅', user: '使用者' };
                 const roleClass = u.role === 'admin' ? 'badge-admin' : u.role === 'influencer' ? 'bg-warning text-dark' : 'badge-user';
                 tr.innerHTML = `
       <td class="fw-medium">${u.username}</td>
       <td>${u.name || '—'}</td>
       <td><span class="badge ${roleClass}">${roleMap[u.role] || u.role}</span></td>
       <td><code>${u.referral_code || '—'}</code></td>
-      <td>${u.is_active ? '<span class="text-success">✓ 启用</span>' : '<span class="text-danger">✗ 停用</span>'}</td>
+      <td>${u.is_active ? '<span class="text-success">✓ 啟用</span>' : '<span class="text-danger">✗ 停用</span>'}</td>
       <td>${u.role !== 'admin' ? `<input type="text" class="form-control form-control-sm user-pw-input" value="${u.password || ''}">` :
                         '<span class="text-muted">—</span>'}</td>
-      <td class="text-nowrap">${u.role !== 'admin' ? `<button class="btn btn-sm btn-primary btn-save me-1" title="保存密码"><i class="bi bi-check-lg"></i></button>
-        <button class="btn btn-sm ${u.is_active ? 'btn-outline-danger' : 'btn-outline-success'} btn-toggle" title="${u.is_active ? '停用' : '启用'}">
+      <td class="text-nowrap">${u.role !== 'admin' ? `<button class="btn btn-sm btn-primary btn-save me-1" title="儲存密碼"><i class="bi bi-check-lg"></i></button>
+        <button class="btn btn-sm ${u.is_active ? 'btn-outline-danger' : 'btn-outline-success'} btn-toggle" title="${u.is_active ? '停用' : '啟用'}">
         <i class="bi bi-${u.is_active ? 'x-circle' : 'check-circle'}"></i></button>` : ''}</td>`;
 
                 if (u.role !== 'admin') {
-                    // 保存密码
+                    // 儲存密碼
                     const btnSave = tr.querySelector('.btn-save');
                     const inp = tr.querySelector('input');
                     if (btnSave) btnSave.onclick = async () => {
-                        const pw = inp.value.trim(); if (!pw) { alert('密码不可空'); return; }
+                        const pw = inp.value.trim(); if (!pw) { alert('密碼不可空'); return; }
                         btnSave.disabled = true;
                         const { error } = await db.from('users').update({ password: pw }).eq('id', u.id);
                         if (!error) { btnSave.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>'; setTimeout(() => btnSave.innerHTML = '<i class="bi bi-check-lg"></i>', 1500); }
-                        else alert('更新失败');
+                        else alert('更新失敗');
                         btnSave.disabled = false;
                     };
-                    // 启用/停用
+                    // 啟用/停用
                     const btnToggle = tr.querySelector('.btn-toggle');
                     if (btnToggle) btnToggle.onclick = async () => {
                         const { error } = await db.from('users').update({ is_active: !u.is_active }).eq('id', u.id);
-                        if (!error) loadUsers(); else alert('操作失败');
+                        if (!error) loadUsers(); else alert('操作失敗');
                     };
                 }
                 tblBody.appendChild(tr);
             });
         }
 
-        /* ===== 新增用户 ===== */
+        /* ===== 新增使用者 ===== */
         const addModal = new bootstrap.Modal(document.getElementById('addUserModal'));
         document.getElementById('btnAddUser').onclick = () => addModal.show();
         document.getElementById('btnSaveUser').onclick = async () => {
@@ -370,19 +370,19 @@
             const name = document.getElementById('nuName').value.trim();
             const role = document.getElementById('nuRole').value;
             const dept = document.getElementById('nuDept').value.trim();
-            if (!username || !password) { document.getElementById('nuError').textContent = '帐号和密码必填'; return; }
+            if (!username || !password) { document.getElementById('nuError').textContent = '帳號和密碼必填'; return; }
 
-            // 网红自动生成推荐码
+            // 網紅自動生成推薦碼
             const referral_code = role === 'influencer' ? username.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Math.random().toString(36).slice(2, 8) : null;
 
             const { error } = await db.from('users').insert({ username, password, name, role, dept, referral_code });
-            if (error) { document.getElementById('nuError').textContent = '创建失败：' + error.message; return; }
+            if (error) { document.getElementById('nuError').textContent = '建立失敗：' + error.message; return; }
             addModal.hide();
             document.getElementById('nuUser').value = ''; document.getElementById('nuPass').value = ''; document.getElementById('nuName').value = ''; document.getElementById('nuDept').value = '';
             loadUsers();
         };
 
-        /* ===== 初次加载 ===== */
+        /* ===== 初次載入 ===== */
         loadRecords();
         loadUsers();
     </script>

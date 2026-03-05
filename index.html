@@ -4,8 +4,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>DISC 人格特质测验</title>
-    <meta name="description" content="DISC 人格特质测验 — 发现你独特的行为风格">
+    <title>DISC 人格特質測驗</title>
+    <meta name="description" content="DISC 人格特質測驗 — 發現你獨特的行為風格">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -76,7 +76,7 @@
             display: none !important;
         }
 
-        /* 填写信息表单 */
+        /* 填寫資訊表單 */
         .info-form {
             max-width: 460px;
             margin: 0 auto;
@@ -101,7 +101,7 @@
 <body>
     <header class="quiz-header">
         <div class="container d-flex align-items-center justify-content-between">
-            <span class="quiz-brand"><i class="bi bi-diamond-fill me-1"></i>DISC 测验</span>
+            <span class="quiz-brand"><i class="bi bi-diamond-fill me-1"></i>DISC 測驗</span>
             <div class="d-flex align-items-center gap-2">
                 <small class="text-muted" id="topInfo"></small>
                 <button class="btn btn-sm btn-outline-secondary d-none" id="btnLogout"><i
@@ -112,12 +112,12 @@
 
     <main class="container py-4" style="max-width:680px">
 
-        <!-- ===== 1) 信息填写区 ===== -->
+        <!-- ===== 1) 資訊填寫區 ===== -->
         <div id="infoSection">
             <div class="card mb-4">
                 <div class="card-body text-center">
-                    <h4 class="fw-bold mb-2">🧬 DISC 人格特质测验</h4>
-                    <p class="text-muted mb-0">请先填写基本信息，再开始测验</p>
+                    <h4 class="fw-bold mb-2">🧬 DISC 人格特質測驗</h4>
+                    <p class="text-muted mb-0">請先填寫基本資訊，再開始測驗</p>
                 </div>
             </div>
             <div class="card">
@@ -127,31 +127,31 @@
                         <label>姓名 <span class="text-danger">*</span></label>
                     </div>
                     <div class="form-floating">
-                        <input type="tel" class="form-control" id="inpPhone" placeholder="电话">
-                        <label>电话</label>
+                        <input type="tel" class="form-control" id="inpPhone" placeholder="電話">
+                        <label>電話</label>
                     </div>
                     <div class="form-floating">
                         <input type="email" class="form-control" id="inpEmail" placeholder="Email">
                         <label>Email</label>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="inpOrg" placeholder="组织/公司">
-                        <label>组织 / 公司</label>
+                        <input type="text" class="form-control" id="inpOrg" placeholder="組織/公司">
+                        <label>組織 / 公司</label>
                     </div>
                     <div class="form-floating">
-                        <input type="text" class="form-control" id="inpDept" placeholder="部门">
-                        <label>部门</label>
+                        <input type="text" class="form-control" id="inpDept" placeholder="部門">
+                        <label>部門</label>
                     </div>
-                    <button class="btn btn-primary w-100 mt-2 fw-semibold py-2" id="btnStartQuiz">开始测验 →</button>
+                    <button class="btn btn-primary w-100 mt-2 fw-semibold py-2" id="btnStartQuiz">開始測驗 →</button>
                     <div id="infoError" class="text-danger text-center mt-2" style="font-size:0.85rem"></div>
                 </div>
             </div>
         </div>
 
-        <!-- ===== 2) 测验区 ===== -->
+        <!-- ===== 2) 測驗區 ===== -->
         <div id="quizSection" class="d-hidden">
             <div class="d-flex justify-content-between align-items-center mb-2">
-                <small class="text-muted">题目 <strong class="text-dark" id="qCur">1</strong> / <span
+                <small class="text-muted">題目 <strong class="text-dark" id="qCur">1</strong> / <span
                         id="qTot">20</span></small>
                 <small class="text-muted" id="qPct">0%</small>
             </div>
@@ -160,26 +160,26 @@
             </div>
             <div class="card mb-3" id="qCard">
                 <div class="card-body">
-                    <span class="q-badge mb-3" id="qNum">第 1 题</span>
-                    <div class="question-title mt-2" id="qText">加载中...</div>
+                    <span class="q-badge mb-3" id="qNum">第 1 題</span>
+                    <div class="question-title mt-2" id="qText">載入中...</div>
                 </div>
             </div>
             <div class="row g-3" id="optArea"></div>
         </div>
 
-        <!-- ===== 3) 结果区 ===== -->
+        <!-- ===== 3) 結果區 ===== -->
         <div id="resultSection" class="d-hidden">
             <div class="card mb-4">
                 <div class="card-body result-hero">
                     <span class="icon" id="rIcon">🐵</span>
                     <div class="type-name" id="rType">支配型</div>
-                    <div class="slogan" id="rSlogan">一句话描述</div>
+                    <div class="slogan" id="rSlogan">一句話描述</div>
                 </div>
             </div>
 
             <div class="card mb-4">
                 <div class="card-body">
-                    <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-1 text-muted"></i>得分分布</h6>
+                    <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-fill me-1 text-muted"></i>得分分佈</h6>
                     <div id="barArea">
                         <div class="disc-bar">
                             <div class="disc-bar-label" style="color:var(--d-color)">D</div>
@@ -215,7 +215,7 @@
 
             <div class="card mb-4">
                 <div class="card-body">
-                    <h6 class="fw-bold mb-3"><i class="bi bi-diagram-3-fill me-1 text-muted"></i>人格雷达图</h6>
+                    <h6 class="fw-bold mb-3"><i class="bi bi-diagram-3-fill me-1 text-muted"></i>人格雷達圖</h6>
                     <div class="chart-wrapper"><canvas id="radarChart"></canvas></div>
                 </div>
             </div>
@@ -224,7 +224,7 @@
 
             <div class="d-flex gap-2 justify-content-center mt-4 mb-5">
                 <button class="btn btn-primary px-4" id="btnRestart"><i
-                        class="bi bi-arrow-repeat me-1"></i>重新测验</button>
+                        class="bi bi-arrow-repeat me-1"></i>重新測驗</button>
             </div>
         </div>
     </main>
@@ -233,10 +233,10 @@
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
     <script src="supabase-config.js"></script>
     <script>
-        /* ===== 推荐码 ===== */
+        /* ===== 推薦碼 ===== */
         const refCode = getRefCode();
 
-        /* ===== 用户信息（如果通过登入进来） ===== */
+        /* ===== 使用者資訊（如果透過登入進來） ===== */
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (user) {
             document.getElementById('topInfo').textContent = user.name || user.username;
@@ -245,17 +245,17 @@
                 sessionStorage.removeItem('user');
                 window.location.href = 'login.html';
             };
-            // 自动填写信息
+            // 自動填寫資訊
             if (user.name) document.getElementById('inpName').value = user.name;
             if (user.dept) document.getElementById('inpDept').value = user.dept;
         }
 
-        /* ===== 信息收集 ===== */
+        /* ===== 資訊收集 ===== */
         let takerInfo = {};
         document.getElementById('btnStartQuiz').onclick = () => {
             const name = document.getElementById('inpName').value.trim();
             if (!name) {
-                document.getElementById('infoError').textContent = '请填写姓名';
+                document.getElementById('infoError').textContent = '請填寫姓名';
                 return;
             }
             takerInfo = {
@@ -271,50 +271,50 @@
             loadQuestion();
         };
 
-        /* ===== 题库 ===== */
+        /* ===== 題庫 ===== */
         const questions = [
-            { text: "当你和朋友一起去吃饭，你需要做决定时，你通常会...", options: [{ text: "快速决定餐厅，不想浪费时间讨论", type: "D" }, { text: "选气氛热闹、好拍照或没去过的店", type: "I" }, { text: "问大家的意见，选大家都能接受的", type: "S" }, { text: "先查评价、CP 值和菜单内容再决定", type: "C" }] },
-            { text: "在工作中遇到全新的挑战时，你的第一个反应是？", options: [{ text: "太棒了！这是一个展现能力的好机会", type: "D" }, { text: "好像很有趣！可以认识新的人事物", type: "I" }, { text: "有点担心，希望能有前辈带领或SOP", type: "S" }, { text: "先分析风险，拟定详细计划再行动", type: "C" }] },
-            { text: "当你与人发生冲突或意见不合时，你会...", options: [{ text: "据理力争，坚持自己的观点", type: "D" }, { text: "试着用幽默化解尴尬，或找人说和", type: "I" }, { text: "为了气氛和谐，可能会选择退让", type: "S" }, { text: "列举证据和数据，证明我是对的", type: "C" }] },
-            { text: "在社交场合中，你通常是...", options: [{ text: "主导话题，掌控聚会节奏的人", type: "D" }, { text: "全场焦点，负责炒热气氛的人", type: "I" }, { text: "安静的倾听者，微笑附和的人", type: "S" }, { text: "在一旁观察，与少数人深度交谈的人", type: "C" }] },
-            { text: "购买高单价商品（如手机、家电）时，你的习惯是...", options: [{ text: "看准目标，付钱走人，讲求效率", type: "D" }, { text: "看外型、看流行，朋友推荐就买", type: "I" }, { text: "习惯买用过的品牌，不想冒险", type: "S" }, { text: "详细比较规格、保固、价格后才买", type: "C" }] },
-            { text: "对于「规则」和「SOP」，你的看法是...", options: [{ text: "规则是用来打破的，如果阻碍效率就改掉", type: "D" }, { text: "规则太死板了，保持弹性比较重要", type: "I" }, { text: "规则让人有安全感，照着做就不会错", type: "S" }, { text: "规则必须严格遵守，细节决定成败", type: "C" }] },
-            { text: "你希望别人如何称赞你？", options: [{ text: "你很强、很有能力、很有魄力", type: "D" }, { text: "你很风趣、很有魅力、人缘很好", type: "I" }, { text: "你很体贴、很可靠、是个好队友", type: "S" }, { text: "你很专业、很细心、逻辑很强", type: "C" }] },
-            { text: "当计划赶不上变化时，你会...", options: [{ text: "立刻下达新指令，控制局面", type: "D" }, { text: "见招拆招，相信船到桥头自然直", type: "I" }, { text: "感到焦虑，希望能恢复原本的计划", type: "S" }, { text: "停下来重新评估，修正计划书", type: "C" }] },
-            { text: "你最受不了哪种人？", options: [{ text: "说话吞吞吐吐、没有重点、动作慢的人", type: "D" }, { text: "严肃无聊、不苟言笑、太过挑剔的人", type: "I" }, { text: "强势霸道、喜欢引发冲突、不合群的人", type: "S" }, { text: "粗心大意、逻辑混乱、没有数据根据的人", type: "C" }] },
-            { text: "放假时，你比较喜欢...", options: [{ text: "参加竞赛或高强度运动，挑战自己", type: "D" }, { text: "去派对、KTV或热闹的地方玩乐", type: "I" }, { text: "在家休息，或去熟悉的咖啡厅放空", type: "S" }, { text: "阅读、逛展览或做一些需要专注的手作", type: "C" }] },
-            { text: "做简报或演讲时，你的风格偏向...", options: [{ text: "简洁有力，强调结论和行动方案", type: "D" }, { text: "肢体丰富，故事精彩，与观众互动", type: "I" }, { text: "语气温和，内容平实，照顾听众感受", type: "S" }, { text: "结构严谨，引用大量数据和图表", type: "C" }] },
-            { text: "关于「时间观念」，你是...", options: [{ text: "非常准时，甚至会给迟到的人脸色看", type: "D" }, { text: "经常迟到，因为总是被其他事情分心", type: "I" }, { text: "会提早到，如果不小心迟到会非常内疚", type: "S" }, { text: "精准计算路程时间，不容许误差", type: "C" }] },
-            { text: "当你感到压力很大时，你通常会...", options: [{ text: "变得易怒、急躁，甚至骂人", type: "D" }, { text: "想要找人说话，宣泄情绪", type: "I" }, { text: "选择沉默、睡觉或暴饮暴食", type: "S" }, { text: "独处，钻牛角尖，反覆思考问题点", type: "C" }] },
-            { text: "你认为一个好的领导者应该...", options: [{ text: "有决断力，能带领大家冲锋陷阵", type: "D" }, { text: "有感染力，能激励大家的工作热情", type: "I" }, { text: "有包容力，能凝聚团队的向心力", type: "S" }, { text: "有分析力，能制定完美的策略", type: "C" }] },
-            { text: "当你需要说服别人时，你会...", options: [{ text: "直接告诉他这样做的好处和结果", type: "D" }, { text: "用热情感染他，描绘美好的愿景", type: "I" }, { text: "动之以情，建立彼此的信任感", type: "S" }, { text: "提出具体的逻辑证明和数据分析", type: "C" }] },
-            { text: "你的办公桌或房间通常是...", options: [{ text: "只有目前需要的东西，用完即丢", type: "D" }, { text: "有点乱，充满了各种有趣的小物或照片", type: "I" }, { text: "布置得很温馨，有家人的照片或盆栽", type: "S" }, { text: "井然有序，东西都有固定的位置", type: "C" }] },
-            { text: "面对别人的批评，你的反应是...", options: [{ text: "反击回去，证明自己没错", type: "D" }, { text: "表面笑笑带过，心里其实很受伤", type: "I" }, { text: "虚心接受，但会因此沮丧很久", type: "S" }, { text: "分析批评的内容是否有逻辑，有则改之", type: "C" }] },
-            { text: "在团队合作中，你最常扮演的角色是...", options: [{ text: "队长 / 指挥官", type: "D" }, { text: "公关 / 发言人", type: "I" }, { text: "后勤 / 协调者", type: "S" }, { text: "军师 / 策划者", type: "C" }] },
-            { text: "关于「改变」，你的态度是...", options: [{ text: "我喜欢创造改变，旧的不去新的不来", type: "D" }, { text: "改变很有趣啊！可以体验新鲜事", type: "I" }, { text: "不太喜欢，习惯的模式让我比较安心", type: "S" }, { text: "如果有充分理由证明改变比较好，我才接受", type: "C" }] },
-            { text: "你的人生座右铭比较接近...", options: [{ text: "爱拼才会赢 / 只要结果，不问过程", type: "D" }, { text: "活在当下 / 人生就是要快乐", type: "I" }, { text: "知足常乐 / 平凡就是福", type: "S" }, { text: "追求卓越 / 魔鬼藏在细节里", type: "C" }] }
+            { text: "當你和朋友一起去吃飯，你需要做決定時，你通常會...", options: [{ text: "快速決定餐廳，不想浪費時間討論", type: "D" }, { text: "選氣氛熱鬧、好拍照或沒去過的店", type: "I" }, { text: "問大家的意見，選大家都能接受的", type: "S" }, { text: "先查評價、CP 值和選單內容再決定", type: "C" }] },
+            { text: "在工作中遇到全新的挑戰時，你的第一個反應是？", options: [{ text: "太棒了！這是一個展現能力的好機會", type: "D" }, { text: "好像很有趣！可以認識新的人事物", type: "I" }, { text: "有點擔心，希望能有前輩帶領或SOP", type: "S" }, { text: "先分析風險，擬定詳細計劃再行動", type: "C" }] },
+            { text: "當你與人發生衝突或意見不合時，你會...", options: [{ text: "據理力爭，堅持自己的觀點", type: "D" }, { text: "試著用幽默化解尷尬，或找人說和", type: "I" }, { text: "為了氣氛和諧，可能會選擇退讓", type: "S" }, { text: "列舉證據和資料，證明我是對的", type: "C" }] },
+            { text: "在社交場合中，你通常是...", options: [{ text: "主導話題，掌控聚會節奏的人", type: "D" }, { text: "全場焦點，負責炒熱氣氛的人", type: "I" }, { text: "安靜的傾聽者，微笑附和的人", type: "S" }, { text: "在一旁觀察，與少數人深度交談的人", type: "C" }] },
+            { text: "購買高單價商品（如手機、家電）時，你的習慣是...", options: [{ text: "看準目標，付錢走人，講求效率", type: "D" }, { text: "看外型、看流行，朋友推薦就買", type: "I" }, { text: "習慣買用過的品牌，不想冒險", type: "S" }, { text: "詳細比較規格、保固、價格後才買", type: "C" }] },
+            { text: "對於「規則」和「SOP」，你的看法是...", options: [{ text: "規則是用來打破的，如果阻礙效率就改掉", type: "D" }, { text: "規則太死板了，保持彈性比較重要", type: "I" }, { text: "規則讓人有安全感，照著做就不會錯", type: "S" }, { text: "規則必須嚴格遵守，細節決定成敗", type: "C" }] },
+            { text: "你希望別人如何稱讚你？", options: [{ text: "你很強、很有能力、很有魄力", type: "D" }, { text: "你很風趣、很有魅力、人緣很好", type: "I" }, { text: "你很體貼、很可靠、是個好隊友", type: "S" }, { text: "你很專業、很細心、邏輯很強", type: "C" }] },
+            { text: "當計劃趕不上變化時，你會...", options: [{ text: "立刻下達新指令，控制局面", type: "D" }, { text: "見招拆招，相信船到橋頭自然直", type: "I" }, { text: "感到焦慮，希望能恢復原本的計劃", type: "S" }, { text: "停下來重新評估，修正計劃書", type: "C" }] },
+            { text: "你最受不了哪種人？", options: [{ text: "說話吞吞吐吐、沒有重點、動作慢的人", type: "D" }, { text: "嚴肅無聊、不苟言笑、太過挑剔的人", type: "I" }, { text: "強勢霸道、喜歡引發衝突、不合群的人", type: "S" }, { text: "粗心大意、邏輯混亂、沒有資料根據的人", type: "C" }] },
+            { text: "放假時，你比較喜歡...", options: [{ text: "參加競賽或高強度運動，挑戰自己", type: "D" }, { text: "去派對、KTV或熱鬧的地方玩樂", type: "I" }, { text: "在家休息，或去熟悉的咖啡廳放空", type: "S" }, { text: "閱讀、逛展覽或做一些需要專注的手作", type: "C" }] },
+            { text: "做簡報或演講時，你的風格偏向...", options: [{ text: "簡潔有力，強調結論和行動方案", type: "D" }, { text: "肢體豐富，故事精彩，與觀眾互動", type: "I" }, { text: "語氣溫和，內容平實，照顧聽眾感受", type: "S" }, { text: "結構嚴謹，引用大量資料和圖表", type: "C" }] },
+            { text: "關於「時間觀念」，你是...", options: [{ text: "非常準時，甚至會給遲到的人臉色看", type: "D" }, { text: "經常遲到，因為總是被其他事情分心", type: "I" }, { text: "會提早到，如果不小心遲到會非常內疚", type: "S" }, { text: "精準計算路程時間，不容許誤差", type: "C" }] },
+            { text: "當你感到壓力很大時，你通常會...", options: [{ text: "變得易怒、急躁，甚至罵人", type: "D" }, { text: "想要找人說話，宣洩情緒", type: "I" }, { text: "選擇沉默、睡覺或暴飲暴食", type: "S" }, { text: "獨處，鑽牛角尖，反覆思考問題點", type: "C" }] },
+            { text: "你認為一個好的領導者應該...", options: [{ text: "有決斷力，能帶領大家衝鋒陷陣", type: "D" }, { text: "有感染力，能激勵大家的工作熱情", type: "I" }, { text: "有包容力，能凝聚團隊的向心力", type: "S" }, { text: "有分析力，能制定完美的策略", type: "C" }] },
+            { text: "當你需要說服別人時，你會...", options: [{ text: "直接告訴他這樣做的好處和結果", type: "D" }, { text: "用熱情感染他，描繪美好的願景", type: "I" }, { text: "動之以情，建立彼此的信任感", type: "S" }, { text: "提出具體的邏輯證明和資料分析", type: "C" }] },
+            { text: "你的辦公桌或房間通常是...", options: [{ text: "只有目前需要的東西，用完即丟", type: "D" }, { text: "有點亂，充滿了各種有趣的小物或照片", type: "I" }, { text: "佈置得很溫馨，有家人的照片或盆栽", type: "S" }, { text: "井然有序，東西都有固定的位置", type: "C" }] },
+            { text: "面對別人的批評，你的反應是...", options: [{ text: "反擊回去，證明自己沒錯", type: "D" }, { text: "表面笑笑帶過，心裡其實很受傷", type: "I" }, { text: "虛心接受，但會因此沮喪很久", type: "S" }, { text: "分析批評的內容是否有邏輯，有則改之", type: "C" }] },
+            { text: "在團隊合作中，你最常扮演的角色是...", options: [{ text: "隊長 / 指揮官", type: "D" }, { text: "公關 / 發言人", type: "I" }, { text: "後勤 / 協調者", type: "S" }, { text: "軍師 / 策劃者", type: "C" }] },
+            { text: "關於「改變」，你的態度是...", options: [{ text: "我喜歡創造改變，舊的不去新的不來", type: "D" }, { text: "改變很有趣啊！可以體驗新鮮事", type: "I" }, { text: "不太喜歡，習慣的模式讓我比較安心", type: "S" }, { text: "如果有充分理由證明改變比較好，我才接受", type: "C" }] },
+            { text: "你的人生座右銘比較接近...", options: [{ text: "愛拼才會贏 / 只要結果，不問過程", type: "D" }, { text: "活在當下 / 人生就是要快樂", type: "I" }, { text: "知足常樂 / 平凡就是福", type: "S" }, { text: "追求卓越 / 魔鬼藏在細節裡", type: "C" }] }
         ];
 
         const resultsData = {
             D: {
-                title: "支配型 — 孙悟空", slogan: "「俺老孙来也！」行动力爆表的战神", icon: "🐵", color: "#e74c3c",
-                cards: [{ icon: "🌟", title: "人格特质", text: "你就像孙悟空，天生领袖气质，解决问题能力极强。遇到困难绝不退缩，做事讲求效率与结果。" }, { icon: "💪", title: "优势天赋", text: "决策果断、执行力强、意志坚定、越挫越勇，能带领团队突破僵局。" }, { icon: "⚠️", title: "潜在盲点", text: "个性急躁、容易冲动、说话太直容易得罪人、较难听进别人的建议。" }, { icon: "💡", title: "发展建议", text: "试着戴上你的「紧箍咒」（耐心），学习慢下来倾听他人的感受，你的领导会更圆满。" }]
+                title: "支配型 — 孫悟空", slogan: "「俺老孫來也！」行動力爆表的戰神", icon: "🐵", color: "#e74c3c",
+                cards: [{ icon: "🌟", title: "人格特質", text: "你就像孫悟空，天生領袖氣質，解決問題能力極強。遇到困難絕不退縮，做事講求效率與結果。" }, { icon: "💪", title: "優勢天賦", text: "決策果斷、執行力強、意志堅定、越挫越勇，能帶領團隊突破僵局。" }, { icon: "⚠️", title: "潛在盲點", text: "個性急躁、容易衝動、說話太直容易得罪人、較難聽進別人的建議。" }, { icon: "💡", title: "發展建議", text: "試著戴上你的「緊箍咒」（耐心），學習慢下來傾聽他人的感受，你的領導會更圓滿。" }]
             },
             I: {
-                title: "影响型 — 猪八戒", slogan: "「师父，我们去玩吧！」快乐的气氛制造者", icon: "🐷", color: "#f39c12",
-                cards: [{ icon: "🌟", title: "人格特质", text: "你就像猪八戒，是团队的开心果。乐观热情，口才好，擅长人际交往，总能用幽默化解尴尬。" }, { icon: "💪", title: "优势天赋", text: "善于沟通、有创意、适应力强、充满活力，能激励团队士气，是天生的公关高手。" }, { icon: "⚠️", title: "潜在盲点", text: "注意力不集中、做事三分钟热度、容易情绪化、对细节比较大而化之。" }, { icon: "💡", title: "发展建议", text: "学习唐三藏的专注，试着把事情坚持到底。确保承诺能够兑现，你会更受人信赖。" }]
+                title: "影響型 — 豬八戒", slogan: "「師父，我們去玩吧！」快樂的氣氛製造者", icon: "🐷", color: "#f39c12",
+                cards: [{ icon: "🌟", title: "人格特質", text: "你就像豬八戒，是團隊的開心果。樂觀熱情，口才好，擅長人際交往，總能用幽默化解尷尬。" }, { icon: "💪", title: "優勢天賦", text: "善於溝通、有創意、適應力強、充滿活力，能激勵團隊士氣，是天生的公關高手。" }, { icon: "⚠️", title: "潛在盲點", text: "注意力不集中、做事三分鐘熱度、容易情緒化、對細節比較大而化之。" }, { icon: "💡", title: "發展建議", text: "學習唐三藏的專注，試著把事情堅持到底。確保承諾能夠兌現，你會更受人信賴。" }]
             },
             S: {
-                title: "稳健型 — 沙悟净", slogan: "「大师兄说得对！」忠诚可靠的最佳队友", icon: "🎒", color: "#27ae60",
-                cards: [{ icon: "🌟", title: "人格特质", text: "你就像沙悟净，个性温和、情绪稳定，任劳任怨。你不喜欢冲突，是团队中最好的倾听者与调停者。" }, { icon: "💪", title: "优势天赋", text: "忠诚度高、配合度极佳、有耐心、不仅能把份内事做好，还会主动支援他人。" }, { icon: "⚠️", title: "潜在盲点", text: "优柔寡断、害怕改变、过于压抑自己的需求、容易变成「滥好人」。" }, { icon: "💡", title: "发展建议", text: "学习孙悟空的勇气，适时表达自己的真实想法。学会拒绝不合理的要求。" }]
+                title: "穩健型 — 沙悟淨", slogan: "「大師兄說得對！」忠誠可靠的最佳隊友", icon: "🎒", color: "#27ae60",
+                cards: [{ icon: "🌟", title: "人格特質", text: "你就像沙悟淨，個性溫和、情緒穩定，任勞任怨。你不喜歡衝突，是團隊中最好的傾聽者與調停者。" }, { icon: "💪", title: "優勢天賦", text: "忠誠度高、配合度極佳、有耐心、不僅能把份內事做好，還會主動支援他人。" }, { icon: "⚠️", title: "潛在盲點", text: "優柔寡斷、害怕改變、過於壓抑自己的需求、容易變成「濫好人」。" }, { icon: "💡", title: "發展建議", text: "學習孫悟空的勇氣，適時表達自己的真實想法。學會拒絕不合理的要求。" }]
             },
             C: {
-                title: "分析型 — 唐三藏", slogan: "「悟空，切莫杀生。」追求完美的取经人", icon: "🧘", color: "#2980b9",
-                cards: [{ icon: "🌟", title: "人格特质", text: "你就像唐三藏，做事有原则、讲究SOP。追求完美，重视逻辑与数据，做决定前会深思熟虑。" }, { icon: "💪", title: "优势天赋", text: "逻辑缜密、注重细节、品质把关严格、善于分析风险与制定计划。" }, { icon: "⚠️", title: "潜在盲点", text: "过于挑剔、容易钻牛角尖、标准太高让人有压力、反应较慢。" }, { icon: "💡", title: "发展建议", text: "这个世界并不完美，学习接受「小瑕疵」。放松标准，多一点随性，日子会更快乐。" }]
+                title: "分析型 — 唐三藏", slogan: "「悟空，切莫殺生。」追求完美的取經人", icon: "🧘", color: "#2980b9",
+                cards: [{ icon: "🌟", title: "人格特質", text: "你就像唐三藏，做事有原則、講究SOP。追求完美，重視邏輯與資料，做決定前會深思熟慮。" }, { icon: "💪", title: "優勢天賦", text: "邏輯縝密、注重細節、品質把關嚴格、善於分析風險與制定計劃。" }, { icon: "⚠️", title: "潛在盲點", text: "過於挑剔、容易鑽牛角尖、標準太高讓人有壓力、反應較慢。" }, { icon: "💡", title: "發展建議", text: "這個世界並不完美，學習接受「小瑕疵」。放鬆標準，多一點隨性，日子會更快樂。" }]
             }
         };
 
-        /* ===== 测验逻辑 ===== */
+        /* ===== 測驗邏輯 ===== */
         let curQ = 0, scores = { D: 0, I: 0, S: 0, C: 0 };
         const total = questions.length;
         document.getElementById('qTot').textContent = total;
@@ -322,7 +322,7 @@
         function loadQuestion() {
             const q = questions[curQ];
             document.getElementById('qCur').textContent = curQ + 1;
-            document.getElementById('qNum').textContent = `第 ${curQ + 1} 题`;
+            document.getElementById('qNum').textContent = `第 ${curQ + 1} 題`;
             document.getElementById('qText').textContent = q.text;
             const pct = Math.round((curQ / total) * 100);
             document.getElementById('qPct').textContent = pct + '%';
@@ -349,7 +349,7 @@
             showResult();
         }
 
-        /* ===== 结果 ===== */
+        /* ===== 結果 ===== */
         async function showResult() {
             document.getElementById('quizSection').classList.add('d-hidden');
             document.getElementById('resultSection').classList.remove('d-hidden');
@@ -371,11 +371,11 @@
                 });
             }, 300);
 
-            // 雷达图
+            // 雷達圖
             new Chart(document.getElementById('radarChart').getContext('2d'), {
                 type: 'radar',
                 data: {
-                    labels: ['D 支配', 'I 影响', 'S 稳健', 'C 分析'],
+                    labels: ['D 支配', 'I 影響', 'S 穩健', 'C 分析'],
                     datasets: [{
                         label: '得分', data: [scores.D, scores.I, scores.S, scores.C],
                         backgroundColor: 'rgba(108,92,231,0.15)', borderColor: '#6c5ce7', borderWidth: 2,
@@ -405,7 +405,7 @@
                 area.appendChild(div);
             });
 
-            // 保存到 Supabase
+            // 儲存到 Supabase
             const pctScores = {
                 d_score: Math.round((scores.D / total) * 100), i_score: Math.round((scores.I / total) * 100),
                 s_score: Math.round((scores.S / total) * 100), c_score: Math.round((scores.C / total) * 100)
@@ -418,7 +418,7 @@
                     referral_code: refCode,
                     raw_scores: scores
                 });
-            } catch (e) { console.error('保存失败', e); }
+            } catch (e) { console.error('儲存失敗', e); }
         }
 
         /* ===== 重做 ===== */
