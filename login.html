@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>DISC 人格测验 — 登入</title>
+    <meta name="description" content="DISC 人格特质测验系统登入">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        body {
+            background: linear-gradient(135deg, #f8f9fc 0%, #eef1f8 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-wrapper {
+            width: 100%;
+            max-width: 400px;
+            padding: 1rem;
+        }
+
+        .login-icon {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #6c5ce7, #a29bfe);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 1.2rem;
+            font-size: 2rem;
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(108, 92, 231, 0.25);
+        }
+
+        .login-card {
+            border-radius: 20px;
+            box-shadow: 0 4px 24px rgba(0, 0, 0, 0.07);
+            padding: 2.5rem 2rem;
+        }
+
+        .login-footer {
+            text-align: center;
+            margin-top: 1.5rem;
+            font-size: 0.8rem;
+            color: #b2bec3;
+        }
+
+        .dot {
+            position: fixed;
+            border-radius: 50%;
+            opacity: 0.12;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .dot-1 {
+            width: 200px;
+            height: 200px;
+            background: #6c5ce7;
+            top: -60px;
+            right: -60px;
+        }
+
+        .dot-2 {
+            width: 150px;
+            height: 150px;
+            background: #f39c12;
+            bottom: -40px;
+            left: -40px;
+        }
+
+        .dot-3 {
+            width: 100px;
+            height: 100px;
+            background: #27ae60;
+            top: 40%;
+            left: -30px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="dot dot-1"></div>
+    <div class="dot dot-2"></div>
+    <div class="dot dot-3"></div>
+
+    <div class="login-wrapper position-relative" style="z-index:1">
+        <div class="card login-card">
+            <div class="card-body text-center">
+                <div class="login-icon"><i class="bi bi-person-circle"></i></div>
+                <h4 class="fw-bold mb-1">DISC 人格测验</h4>
+                <p class="text-muted mb-4" style="font-size:0.88rem">了解你的行为风格，释放你的天赋</p>
+                <form id="loginForm" novalidate>
+                    <div class="form-floating mb-3">
+                        <input type="text" class="form-control" id="username" placeholder="帐号" autocomplete="username"
+                            required>
+                        <label for="username"><i class="bi bi-person me-1"></i>帐号</label>
+                    </div>
+                    <div class="form-floating mb-3">
+                        <input type="password" class="form-control" id="password" placeholder="密码"
+                            autocomplete="current-password" required>
+                        <label for="password"><i class="bi bi-lock me-1"></i>密码</label>
+                    </div>
+                    <button type="submit" class="btn btn-primary w-100 py-2 fw-semibold" id="btnLogin">
+                        <span class="btn-label">登 入</span>
+                        <span class="spinner-border spinner-border-sm d-none" id="loginSpinner" role="status"></span>
+                    </button>
+                </form>
+                <div id="loginError" class="text-danger mt-3" style="font-size:0.88rem;min-height:1.4em"></div>
+            </div>
+        </div>
+        <p class="login-footer">© 2025 DISC Assessment System</p>
+    </div>
+
+    <!-- Supabase JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
+    <script src="supabase-config.js"></script>
+    <script>
+        const form = document.getElementById('loginForm');
+        const btnLogin = document.getElementById('btnLogin');
+        const spinner = document.getElementById('loginSpinner');
+        const btnLabel = btnLogin.querySelector('.btn-label');
+        const errorEl = document.getElementById('loginError');
+
+        /* 已登入跳转 */
+        const existing = JSON.parse(sessionStorage.getItem('user') || 'null');
+        if (existing) {
+            if (existing.role === 'admin') window.location.href = 'query.html';
+            else if (existing.role === 'influencer') window.location.href = 'influencer.html';
+            else window.location.href = 'index.html';
+        }
+
+        /* 登入 */
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const u = document.getElementById('username').value.trim();
+            const p = document.getElementById('password').value.trim();
+            if (!u || !p) { showError('请输入帐号和密码'); return; }
+
+            setLoading(true);
+            errorEl.textContent = '';
+
+            try {
+                const { data, error } = await db
+                    .from('users')
+                    .select('id, username, role, name, dept, title, referral_code, is_active')
+                    .eq('username', u)
+                    .eq('password', p)
+                    .single();
+
+                if (error || !data) {
+                    showError('❌ 帐号或密码错误');
+                    return;
+                }
+
+                if (!data.is_active) {
+                    showError('❌ 帐号已被停用，请联系管理员');
+                    return;
+                }
+
+                sessionStorage.setItem('user', JSON.stringify(data));
+
+                if (data.role === 'admin') window.location.href = 'query.html';
+                else if (data.role === 'influencer') window.location.href = 'influencer.html';
+                else window.location.href = 'index.html';
+
+            } catch (err) {
+                console.error(err);
+                showError('❌ 连线错误，请稍后再试');
+            } finally {
+                setLoading(false);
+            }
+        });
+
+        function showError(msg) {
+            errorEl.textContent = msg;
+            document.querySelector('.login-card').classList.add('shake');
+            setTimeout(() => document.querySelector('.login-card').classList.remove('shake'), 500);
+        }
+
+        function setLoading(on) {
+            btnLogin.disabled = on;
+            spinner.classList.toggle('d-none', !on);
+            btnLabel.textContent = on ? '登入中...' : '登 入';
+        }
+    </script>
+</body>
+
+</html>
