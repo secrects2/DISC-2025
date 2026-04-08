@@ -3,6 +3,9 @@
     "pg": "^8.20.0"
   },
   "dependencies": {
-    "@supabase/supabase-js": "^2.98.0"
+    "@supabase/supabase-js": "^2.102.1",
+    "firebase": "^12.11.0",
+    "firebase-admin": "^13.7.0",
+    "opencc-js": "^1.0.5"
   }
 }

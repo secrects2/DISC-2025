@@ -230,11 +230,10 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="supabase-config.js"></script>
-    <script>
+    <script type="module">
+        import { db, collection, addDoc, getRefCode } from './firebase-config.js';
         /* ===== 推薦碼 ===== */
-        const refCode = getRefCode();
+        const refCode = getRefCode();
 
         /* ===== 使用者資訊（如果透過登入進來） ===== */
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
@@ -411,12 +410,13 @@
                 s_score: Math.round((scores.S / total) * 100), c_score: Math.round((scores.C / total) * 100)
             };
             try {
-                await db.from('records').insert({
+                await addDoc(collection(db, 'records'), {
                     ...takerInfo,
                     ...pctScores,
                     primary_type: maxT,
                     referral_code: refCode,
-                    raw_scores: scores
+                    raw_scores: scores,
+                    created_at: new Date().toISOString()
                 });
             } catch (e) { console.error('儲存失敗', e); }
         }

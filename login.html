@@ -118,10 +118,8 @@
         <p class="login-footer">© 2025 DISC Assessment System</p>
     </div>
 
-    <!-- Supabase JS -->
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="supabase-config.js"></script>
-    <script>
+    <script type="module">
+        import { db, collection, getDocs, query, where } from './firebase-config.js';
         const form = document.getElementById('loginForm');
         const btnLogin = document.getElementById('btnLogin');
         const spinner = document.getElementById('loginSpinner');
@@ -147,17 +145,20 @@
             errorEl.textContent = '';
 
             try {
-                const { data, error } = await db
-                    .from('users')
-                    .select('id, username, role, name, dept, title, referral_code, is_active')
-                    .eq('username', u)
-                    .eq('password', p)
-                    .single();
+                const q = query(
+                    collection(db, 'users'),
+                    where('username', '==', u),
+                    where('password', '==', p)
+                );
+                const snapshot = await getDocs(q);
 
-                if (error || !data) {
+                if (snapshot.empty) {
                     showError('❌ 帳號或密碼錯誤');
                     return;
                 }
+
+                const docSnap = snapshot.docs[0];
+                const data = { id: docSnap.id, ...docSnap.data() };
 
                 if (!data.is_active) {
                     showError('❌ 帳號已被停用，請聯絡管理員');

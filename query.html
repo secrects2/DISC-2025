@@ -226,9 +226,12 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="supabase-config.js"></script>
-    <script>
+    <script type="module">
+        import {
+            db, collection, doc,
+            addDoc, getDocs, updateDoc,
+            query, where, orderBy
+        } from './firebase-config.js';
         /* ===== 許可權 ===== */
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (!user || user.role !== 'admin') { alert('需要管理者許可權'); window.location.href = 'login.html'; }
@@ -240,21 +243,27 @@
         document.getElementById('btnSearch').onclick = loadRecords;
 
         async function loadRecords() {
-            let query = db.from('records').select('*').order('created_at', { ascending: false });
-            const name = document.getElementById('fName').value.trim();
-            const ref = document.getElementById('fRef').value.trim();
-            const from = document.getElementById('fFrom').value;
-            const to = document.getElementById('fTo').value;
-            if (name) query = query.ilike('taker_name', `%${name}%`);
-            if (ref) query = query.eq('referral_code', ref);
-            if (from) query = query.gte('created_at', from);
-            if (to) query = query.lte('created_at', to + 'T23:59:59');
+            try {
+                const q = query(collection(db, 'records'), orderBy('created_at', 'desc'));
+                const snapshot = await getDocs(q);
+                let rows = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
 
-            const { data, error } = await query;
-            if (error) { alert('查詢失敗：' + error.message); return; }
-            allRecords = data || [];
-            renderTable(allRecords);
-            updateStats(allRecords);
+                // 前端過濾（Firestore 無 ilike）
+                const name = document.getElementById('fName').value.trim().toLowerCase();
+                const ref = document.getElementById('fRef').value.trim();
+                const from = document.getElementById('fFrom').value;
+                const to = document.getElementById('fTo').value;
+                if (name) rows = rows.filter(r => (r.taker_name || '').toLowerCase().includes(name));
+                if (ref) rows = rows.filter(r => r.referral_code === ref);
+                if (from) rows = rows.filter(r => r.created_at >= from);
+                if (to) rows = rows.filter(r => r.created_at <= to + 'T23:59:59');
+
+                allRecords = rows;
+                renderTable(allRecords);
+                updateStats(allRecords);
+            } catch (error) {
+                alert('查詢失敗：' + error.message);
+            }
         }
 
         function renderTable(rows) {
@@ -315,9 +324,14 @@
         document.getElementById('btnLoadUsers').onclick = loadUsers;
 
         async function loadUsers() {
-            const { data, error } = await db.from('users').select('*').order('created_at', { ascending: false });
-            if (error) { alert('載入失敗'); return; }
-            renderUsers(data || []);
+            try {
+                const q = query(collection(db, 'users'), orderBy('created_at', 'desc'));
+                const snapshot = await getDocs(q);
+                const rows = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderUsers(rows);
+            } catch (error) {
+                alert('載入失敗');
+            }
         }
 
         function renderUsers(rows) {
@@ -345,16 +359,18 @@
                     if (btnSave) btnSave.onclick = async () => {
                         const pw = inp.value.trim(); if (!pw) { alert('密碼不可空'); return; }
                         btnSave.disabled = true;
-                        const { error } = await db.from('users').update({ password: pw }).eq('id', u.id);
-                        if (!error) { btnSave.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>'; setTimeout(() => btnSave.innerHTML = '<i class="bi bi-check-lg"></i>', 1500); }
-                        else alert('更新失敗');
+                        try {
+                            await updateDoc(doc(db, 'users', u.id), { password: pw });
+                            btnSave.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>'; setTimeout(() => btnSave.innerHTML = '<i class="bi bi-check-lg"></i>', 1500);
+                        } catch (e) { alert('更新失敗'); }
                         btnSave.disabled = false;
                     };
                     // 啟用/停用
-                    const btnToggle = tr.querySelector('.btn-toggle');
                     if (btnToggle) btnToggle.onclick = async () => {
-                        const { error } = await db.from('users').update({ is_active: !u.is_active }).eq('id', u.id);
-                        if (!error) loadUsers(); else alert('操作失敗');
+                        try {
+                            await updateDoc(doc(db, 'users', u.id), { is_active: !u.is_active });
+                            loadUsers();
+                        } catch (e) { alert('操作失敗'); }
                     };
                 }
                 tblBody.appendChild(tr);
@@ -375,11 +391,18 @@
             // 網紅自動生成推薦碼
             const referral_code = role === 'influencer' ? username.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Math.random().toString(36).slice(2, 8) : null;
 
-            const { error } = await db.from('users').insert({ username, password, name, role, dept, referral_code });
-            if (error) { document.getElementById('nuError').textContent = '建立失敗：' + error.message; return; }
-            addModal.hide();
-            document.getElementById('nuUser').value = ''; document.getElementById('nuPass').value = ''; document.getElementById('nuName').value = ''; document.getElementById('nuDept').value = '';
-            loadUsers();
+            try {
+                await addDoc(collection(db, 'users'), {
+                    username, password, name, role, dept, referral_code,
+                    is_active: true,
+                    created_at: new Date().toISOString()
+                });
+                addModal.hide();
+                document.getElementById('nuUser').value = ''; document.getElementById('nuPass').value = ''; document.getElementById('nuName').value = ''; document.getElementById('nuDept').value = '';
+                loadUsers();
+            } catch (error) {
+                document.getElementById('nuError').textContent = '建立失敗：' + error.message;
+            }
         };
 
         /* ===== 初次載入 ===== */

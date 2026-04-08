@@ -166,9 +166,11 @@
     </main>
 
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/umd/supabase.min.js"></script>
-    <script src="supabase-config.js"></script>
-    <script>
+    <script type="module">
+        import {
+            db, collection, getDocs,
+            query, where, orderBy
+        } from './firebase-config.js';
         /* ===== 許可權 ===== */
         const user = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (!user || user.role !== 'influencer') { alert('需要網紅帳號登入'); window.location.href = 'login.html'; }
@@ -191,11 +193,19 @@
 
         /* ===== 載入資料 ===== */
         async function loadData() {
-            const { data, error } = await db.from('records').select('*').eq('referral_code', user.referral_code || '__none__').order('created_at', { ascending: false });
-            if (error) { alert('載入失敗'); return; }
-            const rows = data || [];
-            renderTable(rows);
-            updateStats(rows);
+            try {
+                const q = query(
+                    collection(db, 'records'),
+                    where('referral_code', '==', user.referral_code || '__none__'),
+                    orderBy('created_at', 'desc')
+                );
+                const snapshot = await getDocs(q);
+                const rows = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                renderTable(rows);
+                updateStats(rows);
+            } catch (error) {
+                alert('載入失敗');
+            }
         }
 
         function renderTable(rows) {
