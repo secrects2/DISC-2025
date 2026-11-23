@@ -617,6 +617,235 @@ export function buildRelationshipKeynotes(external) {
 }
 
 /**
+ * 8 大動機譜（-100 到 +100）與消極因素（離職地雷）— 對齊增強型動機報告
+ */
+export function buildMotivations(analysis) {
+    const int = analysis.internal || { D: 50, I: 50, S: 50, C: 50 };
+    const ext = analysis.external || int;
+
+    const specs = [
+        {
+            key: 'challenge',
+            name: '挑戰與突破',
+            score: clamp(round((int.D - 50) * 1.45 - (int.S - 50) * 0.35), -95, 95),
+            about: '衡量受測者對高難度目標、競爭勝出與開創性任務的渴望程度。',
+            highRole: '渴望被賦予具挑戰性的任務與突破空間，視困難為展現實力的舞台。',
+            midRole: '在目標合理且支援充分的前提下願意接受適度挑戰，追求穩步成長。',
+            lowRole: '偏好穩定可控的任務範圍，不追求高風險競爭或頻繁的戰場切換。',
+            demotivatorHigh: '長期被安排重複例行雜務、缺乏晉升或突破目標，容易因無聊與懷才不遇而離職。',
+            demotivatorLow: '長期處於高壓淘汰、無止境救火與高風險賭注環境，容易引發強烈焦慮與倦怠。'
+        },
+        {
+            key: 'recognition',
+            name: '認可與舞台',
+            score: clamp(round((int.I - 50) * 1.35 + (int.D - 50) * 0.4), -95, 95),
+            about: '衡量受測者對公開肯定、個人影響力被看見以及成果獲得讚賞的重視度。',
+            highRole: '希望自己的貢獻能被團隊與高層看見並獲得公開肯定，看重舞台與聲望。',
+            midRole: '重視努力獲得公平評價，在實質成果被認同時會有穩定動力。',
+            lowRole: '不追求浮誇掌聲或成為焦點，更在意把事情紮實做好與實際成果。',
+            demotivatorHigh: '成果長期被理所當然對待、功勞歸別人、或主管從不給予正向口頭讚賞，動力會迅速歸零。',
+            demotivatorLow: '被強迫頻繁參與社交應酬、表面造勢或過度曝光表演，會感到極度不自在。'
+        },
+        {
+            key: 'appreciation',
+            name: '欣賞與價值感',
+            score: clamp(round((int.I - 50) * 0.9 + (int.S - 50) * 0.8), -95, 95),
+            about: '衡量受測者在人際關係中被感謝、被當作重要夥伴看待的情感需求。',
+            highRole: '期待自己付出的時間與協助能被真心感謝，重視團隊人情溫度與互信。',
+            midRole: '喜歡友善尊重的同事氛圍，同時保持專業互動的合理邊界。',
+            lowRole: '工作上以事論事，重在權責與專業對價，不依賴情感層面的額外安撫。',
+            demotivatorHigh: '在冰冷算計、缺乏人情味或只看數字不顧人感受的組織文化中，極容易心寒流失。',
+            demotivatorLow: '過度情緒化的人情綁架或模糊的感情勒索會讓其感到效率低落而反感。'
+        },
+        {
+            key: 'acceptance',
+            name: '接納與歸屬感',
+            score: clamp(round((int.S - 50) * 1.15 + (int.I - 50) * 0.65), -95, 95),
+            about: '衡量受測者對融入群體、被團隊接納以及維持和諧人際關係的需求。',
+            highRole: '把團隊歸屬與彼此相處融洽視為安心工作的核心基礎，樂於配合多數共識。',
+            midRole: '能順利融入團隊合作，同時保有獨立表達不同意見的能力。',
+            lowRole: '高度獨立且不畏懼成為少數派，寧可堅持正確立場也不願為了合群而妥協。',
+            demotivatorHigh: '辦公室政治鬥爭、派系對立、公開嚴厲衝突或被群體孤立，是最大的離職觸發點。',
+            demotivatorLow: '強制齊頭式平庸、為了維持表面和氣而拖延重要改革，會讓其對團隊失去耐心。'
+        },
+        {
+            key: 'stability',
+            name: '穩定性與安全感',
+            score: clamp(round((int.S - 50) * 1.4 + (int.C - 50) * 0.35 - (int.D - 50) * 0.3), -95, 95),
+            about: '衡量受測者對組織制度穩定、工作節奏可預期與低風險環境的偏好。',
+            highRole: '重視清楚的職責邊界、可預期的工作步調與穩定的長期發展承諾。',
+            midRole: '能接受有計畫的漸進式調整，但需要清楚說明變動原因與過渡支援。',
+            lowRole: '天生擁抱變化與不確定性，喜歡快節奏試錯與靈活調整方向。',
+            demotivatorHigh: '主管朝令夕改、無預警大幅調動職務、或公司長期處於混亂救火狀態，極易促使其離職。',
+            demotivatorLow: '一成不變的僵化官僚體制與過度保守的決策流程，會讓其覺得窒息並想跳槽。'
+        },
+        {
+            key: 'understanding',
+            name: '理解與邏輯深度',
+            score: clamp(round((int.C - 50) * 1.5 - (int.I - 50) * 0.25), -95, 95),
+            about: '衡量受測者對徹底弄懂原理、掌握專業深度與追求邏輯正確的驅動力。',
+            highRole: '渴望把事情背後的因果邏輯與專業知識摸透，無法接受一知半解就上陣。',
+            midRole: '會確認核心脈絡與必要依據，同時兼顧實務推進的時間成本。',
+            lowRole: '偏向結果與行動導向，先抓大方向動手做，邊做邊調整勝過長時間研究。',
+            demotivatorHigh: '主管要求「別問為什麼照做就好」、強迫交出粗製濫造或缺乏依據的成果，會嚴重打擊其專業尊嚴。',
+            demotivatorLow: '過度冗長的理論分析、無休止的細節挑剔而遲遲不肯拍板行動，會耗盡其耐性。'
+        },
+        {
+            key: 'information',
+            name: '資訊透明與規範',
+            score: clamp(round((int.C - 50) * 1.2 + (int.S - 50) * 0.45), -95, 95),
+            about: '衡量受測者在決策與執行前，對完整背景資料、明確規則與SOP的需求。',
+            highRole: '仰賴明確的書面規格、完整數據與清晰期望來確保工作零失誤。',
+            midRole: '需要關鍵脈絡與明確交付標準，其餘細節可保留彈性處理空間。',
+            lowRole: '不喜歡被過多文件與規則綁住，擅長在資訊不完全的情況下靠直覺推進。',
+            demotivatorHigh: '需求說不清楚、標準反覆變動卻在驗收時事後究責，會帶來強烈不信任感。',
+            demotivatorLow: '繁文縟節過多、做任何小事都要層層簽呈報備，會使其感到綁手綁腳。'
+        },
+        {
+            key: 'control',
+            name: '控制與自主權',
+            score: clamp(round((int.D - 50) * 1.2 + (int.C - 50) * 0.45 - (int.S - 50) * 0.35), -95, 95),
+            about: '衡量受測者對掌控工作方法、自主決定權與環境主導權的需求強度。',
+            highRole: '強烈需要自主決定「如何達成目標」的空間，傾向自己掌控全局與關鍵變數。',
+            midRole: '能在大方向受控與局部自主之間配合主管節奏運作。',
+            lowRole: '樂於接受明確指導與框架支援，不執著於親自掌握所有主導權。',
+            demotivatorHigh: '主管過度微觀管理（Micromanagement）、事事干涉細節或只給責任不給權限，是頭號離職地雷。',
+            demotivatorLow: '完全放生不管、缺乏明確指引與主管支援，會使其感到無所適從與孤立無援。'
+        }
+    ];
+
+    const items = specs.map(sp => {
+        const polarity = sp.score >= 30 ? '核心驅動力' : sp.score <= -30 ? '低需求／排斥' : '平衡中性';
+        const roleView = sp.score >= 30 ? sp.highRole : sp.score <= -30 ? sp.lowRole : sp.midRole;
+        const demotivator = sp.score >= 0 ? sp.demotivatorHigh : sp.demotivatorLow;
+        return {
+            key: sp.key,
+            name: sp.name,
+            score: sp.score,
+            polarity,
+            about: sp.about,
+            roleView,
+            demotivator,
+            externalHint: Math.abs((ext[sp.key === 'challenge' || sp.key === 'control' ? 'D' : sp.key === 'recognition' || sp.key === 'appreciation' ? 'I' : sp.key === 'acceptance' || sp.key === 'stability' ? 'S' : 'C'] || 50) - 50) >= 20
+        };
+    });
+
+    const topDrivers = [...items].sort((a, b) => b.score - a.score).slice(0, 3);
+    const topLandmines = [...items]
+        .sort((a, b) => Math.abs(b.score) - Math.abs(a.score))
+        .slice(0, 3)
+        .map(it => ({ name: it.name, score: it.score, demotivator: it.demotivator }));
+
+    return { items, topDrivers, topLandmines };
+}
+
+/**
+ * 面試探索性問題（6 題針對性行為追問 ＋ 觀察重點）— 對齊增強型報告「探索性問題」
+ */
+export function buildExploratoryQuestions(analysis, motivations) {
+    const sum = analysis.summary || { D: 50, I: 50, S: 50, C: 50 };
+    const int = analysis.internal || sum;
+    const shift = analysis.shift || { D: 0, I: 0, S: 0, C: 0 };
+    const tension = analysis.tension || { primaryFactor: 'D', maxTension: 0 };
+
+    const sortedDesc = ['D', 'I', 'S', 'C'].sort((a, b) => sum[b] - sum[a]);
+    const topT = sortedDesc[0];
+    const lowT = sortedDesc[3];
+
+    const blindSpotMap = {
+        D: {
+            question: '請分享一次你非常確定自己是對的，但團隊或主管最後決定採用不同方案的經驗；你當時如何反應？最後怎麼處理執行？',
+            lookFor: '【綠旗】能放下主導權並務實推進共識方案；【紅旗】過度歸咎他人、消極抵制或事後仍強硬指責。'
+        },
+        I: {
+            question: '請舉一個你負責的專案中，需要長期處理繁瑣核對或孤立作業（幾乎沒有對外溝通互動）的任務；你如何確保自己在期限內零失誤交付？',
+            lookFor: '【綠旗】有具體檢核工具、分段進度管理方法；【紅旗】承認經常拖延、分心或仰賴別人替他收尾。'
+        },
+        S: {
+            question: '當你手上的工作已經滿載，卻有重要主管或同事臨時塞給你一件急件時，你上次是如何溝通或拒絕的？結果如何？',
+            lookFor: '【綠旗】能有禮貌但清楚地表達優先序與資源取捨；【紅旗】一味隱忍接下導致全部延誤，或無法說「不」。'
+        },
+        C: {
+            question: '請分享一次「資料明顯不齊全、時間又非常緊迫，你必須立刻拍板做決定」的經驗；你當時怎麼取捨品質與速度？',
+            lookFor: '【綠旗】懂得抓 80/20 關鍵風險先行推進；【紅旗】因完美主義反覆延誤時機或要求絕對零風險才肯動手。'
+        }
+    };
+
+    const lowFactorMap = {
+        D: {
+            question: '在跨部門意見僵持不下、沒有人願意當黑臉拍板時，你曾經如何推動事情突破僵局？',
+            lookFor: '檢核當職務需要展現決斷力與立場堅持時，是否具備足夠的勇氣與工具。'
+        },
+        I: {
+            question: '當你必須向不熟悉業務細節的客戶或高層簡報並說服對方買單時，你會如何準備開場與互動？',
+            lookFor: '檢核是否能跳脫單純事實堆疊，用對方聽得懂的語言與價值說服對方。'
+        },
+        S: {
+            question: '若這份工作有 60% 以上屬於重複穩定、必須長期維護既定流程的任務，你過去最長做過類似工作多久？如何保持投入感？',
+            lookFor: '檢核高變動傾向者在常態營運任務中的耐受度與穩定留任度。'
+        },
+        C: {
+            question: '你過去工作中最常在哪些「細節或文件規範」上疏忽出錯？後來你建立了什麼機制避免再犯？',
+            lookFor: '檢核面對低謹慎風險時，是否有自覺並建立防呆檢查習慣。'
+        }
+    };
+
+    const pShift = tension.primaryFactor || 'D';
+    const hasHighShift = (tension.maxTension || 0) >= 15;
+    const shiftQ = hasHighShift
+        ? {
+            dimension: `行為調適與壓力（${pShift} 轉換 ${shift[pShift] >= 0 ? '+' : ''}${shift[pShift]}%）`,
+            question: `從測驗看來，你在正式工作環境中明顯${shift[pShift] >= 0 ? '拉高' : '收斂'}了「${FACTOR_META[pShift].name}」表現。你覺得目前或上一份工作最常迫使你「壓抑自己本來習慣」的地方是什麼？`,
+            lookFor: '【綠旗】清楚知道職務期待並能健康調適；【紅旗】表達對該角色期待感到長期疲憊或強烈排斥。'
+        }
+        : {
+            dimension: '內外一致性與角色彈性',
+            question: '你平常在私下相處與正式職場的做事風格相當一致；如果新職務要求你偶爾切換成完全相反的風格（例如從謹慎變快攻，或從強勢變傾聽），什麼情境對你最困難？',
+            lookFor: '檢核性格高度一致者面對跨角色彈性要求時的自我覺察能力。'
+        };
+
+    const intTop = getPrimaryType(int);
+    const stressMap = {
+        D: '當專案進度嚴重落後、團隊成員動作又跟不上你的節奏時，你上一次大動肝火或語氣變重是什麼情況？事後如何修補關係？',
+        I: '當你同時接了太多承諾或面臨公開批評時，你通常怎麼排解情緒並把未完成的承諾收尾？',
+        S: '面對主管語氣嚴厲或團隊連續變動時，你曾有哪些不滿是壓在心裡沒說出來的？後來怎麼處理？',
+        C: '當別人質疑你的分析邏輯或流程突然被打破時，你會如何避免陷入反覆糾結而影響手邊其他進度？'
+    };
+
+    const topMot = motivations?.topDrivers?.[0] || { name: '工作成就', demotivator: '缺乏發揮空間' };
+    const topLandmine = motivations?.topLandmines?.[0] || topMot;
+
+    return [
+        {
+            dimension: `主要特質盲點驗證（高 ${topT}）`,
+            question: blindSpotMap[topT].question,
+            lookFor: blindSpotMap[topT].lookFor
+        },
+        {
+            dimension: `弱項維度補強檢核（低 ${lowT}）`,
+            question: lowFactorMap[lowT].question,
+            lookFor: lowFactorMap[lowT].lookFor
+        },
+        shiftQ,
+        {
+            dimension: `高壓反應與情緒管理（內在 ${intTop}）`,
+            question: stressMap[intTop],
+            lookFor: '觀察應徵者是否具備高壓下的自我覺察、情緒復原力與補救行為，而非單純否認曾有壓力。'
+        },
+        {
+            dimension: `核心動機與離職地雷（${topMot.name}）`,
+            question: `回顧你過去主動離開一份工作（或最想離職的時期），當時最無法忍受的管理方式或環境因素是什麼？在我們討論的這個職位中，你最看重哪項條件？`,
+            lookFor: `【留任警訊】本測驗顯示其主要地雷包含：「${topLandmine.demotivator}」，請確認本公司此職缺是否會踩到該地雷。`
+        },
+        {
+            dimension: '管理風格契合度',
+            question: '你歷任主管中，讓你表現最好、最想替他拚命的那位主管是怎麼帶你的？哪種主管會讓你最綁手綁腳？',
+            lookFor: `對比用人主管本身的風格，確認是否符合「${analysis.textualSections?.[8]?.content || '所需管理作風'}」。`
+        }
+    ];
+}
+
+/**
  * 完整計算單一 24 題作答結果
  */
 export function computeFullAssessment(answers) {
@@ -696,6 +925,8 @@ export function computeFullAssessment(answers) {
 
     result.textualSections = buildTextualSections(result);
     result.relationshipKeynotes = buildRelationshipKeynotes(external);
+    result.motivations = buildMotivations(result);
+    result.exploratoryQuestions = buildExploratoryQuestions(result, result.motivations);
     return result;
 }
 

@@ -134,6 +134,8 @@
                 <a href="#secTension" class="v2-only">分析表壓力與調適力</a>
                 <a href="#secNarrative" class="v2-only">9 大職場文字報告</a>
                 <a href="#secRel" class="v2-only">關係基本精神</a>
+                <a href="#secInterview" class="v2-only">面試探索性問題</a>
+                <a href="#secMotivations" class="v2-only">8 大動機與離職地雷</a>
             </div>
 
             <!-- 1. 應試者基本資料 -->
@@ -278,11 +280,40 @@
             </section>
 
             <!-- 7. 關係基本精神 -->
-            <section class="card mb-5 v2-only" id="secRel">
+            <section class="card mb-4 v2-only" id="secRel">
                 <div class="card-body">
                     <h5 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-primary"></i>關係基本精神（與四類人格互動指南）</h5>
                     <p class="text-muted small mb-3">將受測者外在行為曲線與高 D / 高 I / 高 S / 高 C 典型對比，提供溝通與協作實務建議</p>
                     <div class="row g-3" id="relCards"></div>
+                </div>
+            </section>
+
+            <!-- 8. 面試探索性問題（增強型報告） -->
+            <section class="card mb-4 v2-only" id="secInterview">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-chat-square-quote-fill me-2 text-primary"></i>面試探索性問題（HR / 主管行為追問指南）</h5>
+                        <span class="badge bg-primary-subtle text-primary">增強型報告模組</span>
+                    </div>
+                    <p class="text-muted small mb-3">針對受測者的高低因數盲點、內外轉換壓力與核心動機，自動產出 6 道面試行為追問與評估紅綠旗</p>
+                    <div class="row g-3" id="interviewQuestionsWrap"></div>
+                </div>
+            </section>
+
+            <!-- 9. 8 大動機譜與消極因素 / 離職地雷（增強型報告） -->
+            <section class="card mb-5 v2-only" id="secMotivations">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-1">
+                        <h5 class="fw-bold mb-0"><i class="bi bi-fire me-2 text-danger"></i>8 大動機譜與離職地雷（消極因素）</h5>
+                        <span class="badge bg-primary-subtle text-primary">增強型報告模組</span>
+                    </div>
+                    <p class="text-muted small mb-3">以 -100 到 +100 雙極性指標衡量內在工作驅動力（正值為渴望驅動，負值為低需求或排斥）與最易流失的管理地雷</p>
+                    <div class="row g-3 mb-3" id="motivationHighlights"></div>
+                    <div class="border rounded-3 p-3 mb-3">
+                        <div class="small fw-bold mb-2">DISC 動機譜（-100 至 +100）</div>
+                        <div style="height:240px"><canvas id="motivationChart"></canvas></div>
+                    </div>
+                    <div class="row g-3" id="motivationCardsWrap"></div>
                 </div>
             </section>
         </div>
@@ -299,6 +330,8 @@
             describeProfileFactors,
             buildTextualSections,
             buildRelationshipKeynotes,
+            buildMotivations,
+            buildExploratoryQuestions,
             getGraphShape,
             getPrimaryType
         } from './disc-engine.js';
@@ -620,6 +653,8 @@
                 };
                 base.textualSections = buildTextualSections(base);
                 base.relationshipKeynotes = buildRelationshipKeynotes(rec.external);
+                base.motivations = buildMotivations(base);
+                base.exploratoryQuestions = buildExploratoryQuestions(base, base.motivations);
                 return base;
             }
             return null;
@@ -814,6 +849,78 @@
                     }
                 });
             });
+
+            // 7. 面試探索性問題
+            const eqList = analysis.exploratoryQuestions || buildExploratoryQuestions(analysis, analysis.motivations);
+            document.getElementById('interviewQuestionsWrap').innerHTML = eqList.map((eq, idx) => `
+              <div class="col-12 col-md-6">
+                <div class="border rounded-3 p-3 h-100 bg-light">
+                  <div class="d-flex justify-content-between align-items-center mb-2">
+                    <span class="badge bg-primary">問題 ${idx + 1}</span>
+                    <span class="badge bg-white text-dark border">${escapeHtml(eq.dimension)}</span>
+                  </div>
+                  <div class="fw-semibold small mb-2" style="line-height:1.6">${escapeHtml(eq.question)}</div>
+                  <div class="small text-secondary border-top pt-2" style="font-size:0.8rem">
+                    <i class="bi bi-eye me-1 text-primary"></i>${escapeHtml(eq.lookFor)}
+                  </div>
+                </div>
+              </div>`).join('');
+
+            // 8. 8 大動機譜與離職地雷
+            const mot = analysis.motivations || buildMotivations(analysis);
+            document.getElementById('motivationHighlights').innerHTML = `
+              <div class="col-12 col-md-6">
+                <div class="border border-success-subtle bg-success-subtle bg-opacity-10 rounded-3 p-3 h-100">
+                  <div class="fw-bold small text-success mb-2"><i class="bi bi-lightning-charge-fill me-1"></i>前三大核心激勵因子</div>
+                  <ul class="small ps-3 mb-0">
+                    ${mot.topDrivers.map(d => `<li class="mb-1"><strong>${escapeHtml(d.name)} (${d.score >= 0 ? '+' : ''}${d.score})</strong>：${escapeHtml(d.roleView)}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>
+              <div class="col-12 col-md-6">
+                <div class="border border-danger-subtle bg-danger-subtle bg-opacity-10 rounded-3 p-3 h-100">
+                  <div class="fw-bold small text-danger mb-2"><i class="bi bi-exclamation-triangle-fill me-1"></i>三大高風險離職地雷（消極因素）</div>
+                  <ul class="small ps-3 mb-0">
+                    ${mot.topLandmines.map(l => `<li class="mb-1"><strong>${escapeHtml(l.name)}</strong>：${escapeHtml(l.demotivator)}</li>`).join('')}
+                  </ul>
+                </div>
+              </div>`;
+
+            new Chart(document.getElementById('motivationChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: mot.items.map(x => x.name),
+                    datasets: [{
+                        label: '動機強度',
+                        data: mot.items.map(x => x.score),
+                        backgroundColor: mot.items.map(x => x.score >= 30 ? '#00b894' : x.score <= -30 ? '#e17055' : '#6c5ce7'),
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: -100, max: 100, ticks: { stepSize: 50 } } }
+                }
+            });
+
+            document.getElementById('motivationCardsWrap').innerHTML = mot.items.map(m => {
+                const badgeCls = m.score >= 30 ? 'bg-success' : m.score <= -30 ? 'bg-danger' : 'bg-secondary';
+                return `<div class="col-12 col-md-6">
+                  <div class="border rounded-3 p-3 h-100 small">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="fw-bold">${escapeHtml(m.name)}</span>
+                      <span class="badge ${badgeCls}">${m.score >= 0 ? '+' : ''}${m.score}（${escapeHtml(m.polarity)}）</span>
+                    </div>
+                    <div class="text-muted mb-2" style="font-size:0.78rem">${escapeHtml(m.about)}</div>
+                    <div class="mb-2"><strong>角色態度：</strong>${escapeHtml(m.roleView)}</div>
+                    <div class="p-2 rounded bg-danger-subtle bg-opacity-25 text-danger-emphasis">
+                      <strong>⚠️ 消極因素（地雷）：</strong>${escapeHtml(m.demotivator)}
+                    </div>
+                  </div>
+                </div>`;
+            }).join('');
         }
 
         async function init() {
