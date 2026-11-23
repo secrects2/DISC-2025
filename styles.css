@@ -225,6 +225,11 @@ body {
   color: var(--d-color);
 }
 
+.badge-company {
+  background: #ede9fe;
+  color: #5b21b6;
+}
+
 .badge-user {
   background: var(--c-bg);
   color: var(--c-color);

@@ -3,3 +3,5 @@ package-lock.json
 setup-db.mjs
 migrate-to-firebase.js
 seed-firebase.js
+dist/
+.wrangler/

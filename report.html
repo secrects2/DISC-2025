@@ -1,0 +1,832 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>DISC 個人深度分析報告</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .report-header {
+            background: #fff;
+            border-bottom: 1px solid #ecf0f1;
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .toc-nav {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .toc-nav a {
+            text-decoration: none;
+            font-size: 0.82rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 20px;
+            background: #fff;
+            border: 1px solid #dfe6e9;
+            color: var(--text-dark);
+        }
+
+        .toc-nav a:hover {
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .mini-profile-box {
+            border: 1px solid #edf0f5;
+            border-radius: 12px;
+            padding: 0.9rem;
+            background: #fff;
+            height: 100%;
+        }
+
+        .mini-profile-title {
+            font-weight: 700;
+            font-size: 0.92rem;
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .style-grid-wrap {
+            position: relative;
+            max-width: 340px;
+            margin: 0 auto;
+        }
+
+        .quadrant-badge {
+            font-size: 0.78rem;
+            font-weight: 600;
+            padding: 2px 10px;
+            border-radius: 12px;
+        }
+
+        .report-section-card {
+            border-left: 4px solid var(--accent);
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: #fff !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #dee2e6 !important;
+                break-inside: avoid;
+            }
+
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="report-header no-print">
+        <div class="container d-flex align-items-center justify-content-between">
+            <span style="font-weight:700;color:var(--accent);font-size:1.05rem">
+                <i class="bi bi-file-earmark-bar-graph me-1"></i>DISC 個人深度分析報告
+            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>列印 / 匯出 PDF
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="btnBack">
+                    <i class="bi bi-arrow-left me-1"></i>返回
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4" style="max-width:1040px">
+        <div id="loadingBox" class="card">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div class="text-muted">正在載入並編譯分析報告...</div>
+            </div>
+        </div>
+
+        <div id="errorBox" class="card d-none">
+            <div class="card-body text-center py-5 text-danger" id="errorText">找不到該筆測驗報告。</div>
+        </div>
+
+        <div id="reportRoot" class="d-none">
+            <!-- 目錄導覽 -->
+            <div class="toc-nav mb-3 no-print" id="tocNav">
+                <a href="#secMeta">基本資料</a>
+                <a href="#secSeries">DISC 分析表</a>
+                <a href="#secStyle" class="v2-only">作風卡 (5×5)</a>
+                <a href="#secTraits" class="v2-only">16 項特性方格</a>
+                <a href="#secTension" class="v2-only">分析表壓力與調適力</a>
+                <a href="#secNarrative" class="v2-only">9 大職場文字報告</a>
+                <a href="#secRel" class="v2-only">關係基本精神</a>
+            </div>
+
+            <!-- 1. 應試者基本資料 -->
+            <section class="card mb-4" id="secMeta">
+                <div class="card-body">
+                    <div class="d-flex flex-wrap align-items-start justify-content-between gap-3">
+                        <div>
+                            <div class="small text-muted mb-1">DISC 個人行為風格深度報告</div>
+                            <h3 class="fw-bold mb-1" id="repName">—</h3>
+                            <div class="text-muted small" id="repMetaLine">—</div>
+                        </div>
+                        <div class="text-md-end">
+                            <div class="badge badge-company fs-6 px-3 py-2 mb-1" id="repStyleBadge">—</div>
+                            <div class="small text-muted" id="repShapeLine">—</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 舊版提示（若是 v1 資料） -->
+            <div class="alert alert-warning d-none" id="legacyAlert">
+                <i class="bi bi-info-circle me-1"></i>
+                此筆為舊版 20 題單選測驗紀錄，僅包含單一綜合分數，以下為基本盤點；新版 24 題強迫選擇測驗可產出完整內在／外在／轉換／作風卡與特質方格報告。
+            </div>
+
+            <!-- 簡單分析權限提示 -->
+            <div class="alert alert-info d-none" id="simpleModeAlert">
+                <i class="bi bi-lock-fill me-1"></i>
+                目前為「<strong>簡單分析模式</strong>」，僅顯示綜合 DISC 分數與基本型別概述；完整深度報告（內在/外在/轉換分析、5×5 作風卡、16 項特性方格、壓力調適與 9 大職場文字報告）需由平台管理員為貴公司開通進階分析權限。
+            </div>
+
+            <!-- 2. DISC 系列分析表 -->
+            <section class="card mb-4" id="secSeries">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow me-2 text-primary"></i>DISC 系列分析表</h5>
+                    <p class="text-muted small mb-3" id="seriesSubTitle">比較「內在（本我與壓力反應）」、「外在（工作調適）」與「總結（日常綜合表現）」及「轉換模式（外在－內在）」</p>
+
+                    <div class="row g-3 mb-4">
+                        <div class="col-12 col-sm-6 col-lg-3 v2-only">
+                            <div class="mini-profile-box">
+                                <div class="mini-profile-title text-success">內在分析表 <span class="badge bg-light text-dark" id="shapeInt">—</span></div>
+                                <canvas id="chartInt" height="200"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 v2-only">
+                            <div class="mini-profile-box">
+                                <div class="mini-profile-title text-primary">外在分析表 <span class="badge bg-light text-dark" id="shapeExt">—</span></div>
+                                <canvas id="chartExt" height="200"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3" id="sumChartCol">
+                            <div class="mini-profile-box">
+                                <div class="mini-profile-title" style="color:var(--text-dark)">總結分析表 <span class="badge bg-light text-dark" id="shapeSum">—</span></div>
+                                <canvas id="chartSum" height="200"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-12 col-sm-6 col-lg-3 v2-only">
+                            <div class="mini-profile-box">
+                                <div class="mini-profile-title text-secondary">轉換模式（外在－內在）</div>
+                                <canvas id="chartShift" height="200"></canvas>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 分數總表 -->
+                    <div class="table-responsive mb-3">
+                        <table class="table table-bordered text-center align-middle mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>維度</th>
+                                    <th style="color:var(--d-color)">D 支配</th>
+                                    <th style="color:var(--i-color)">I 影響</th>
+                                    <th style="color:var(--s-color)">S 穩健</th>
+                                    <th style="color:var(--c-color)">C 謹慎</th>
+                                    <th>圖形代碼</th>
+                                </tr>
+                            </thead>
+                            <tbody id="seriesTableBody"></tbody>
+                        </table>
+                    </div>
+
+                    <!-- 簡易概述（簡單分析模式顯示） -->
+                    <div class="border rounded-3 p-3 bg-light d-none" id="simpleOverviewBox"></div>
+
+                    <!-- 高中低因數拆解 -->
+                    <div class="row g-3 v2-only" id="factorBreakdowns"></div>
+                </div>
+            </section>
+
+            <!-- 3. 作風卡 (5x5) -->
+            <section class="card mb-4 v2-only" id="secStyle">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-grid-3x3-gap-fill me-2 text-primary"></i>作風卡（5×5 行為象限）</h5>
+                    <p class="text-muted small mb-3">以「獨斷↔被動」與「制約↔開放」呈現內在（空心圓）到外在（實心圓）的行為位置與移動方向</p>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-md-5">
+                            <div class="style-grid-wrap" id="styleGridSvg"></div>
+                        </div>
+                        <div class="col-12 col-md-7">
+                            <table class="table table-sm table-bordered mb-0" id="styleMetaTable"></table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 4. 特性總結 / 16 項特性方格 -->
+            <section class="card mb-4 v2-only" id="secTraits">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-bullseye me-2 text-primary"></i>特性總結（16 項特性方格）</h5>
+                    <p class="text-muted small mb-3">橫軸為「內在傾向」，縱軸為「外在展現」，以 50 分為界區分「永久 / 潛在 / 暫時 / 非顯性」特質</p>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-lg-6">
+                            <canvas id="traitScatterChart" height="320"></canvas>
+                        </div>
+                        <div class="col-12 col-lg-6">
+                            <div class="row g-2" id="traitQuadrantLists"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 分析表壓力與調適力 -->
+            <section class="card mb-4 v2-only" id="secTension">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-speedometer2 me-2 text-primary"></i>分析表壓力與調適力</h5>
+                    <p class="text-muted small mb-3">衡量受測者在現行環境中調整自身行為所需投入的心理能量</p>
+                    <div class="row g-4 align-items-center">
+                        <div class="col-12 col-md-7">
+                            <canvas id="tensionChart" height="190"></canvas>
+                        </div>
+                        <div class="col-12 col-md-5">
+                            <div class="p-3 rounded-3 bg-light" id="tensionSummaryBox"></div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 9 大文字報告 -->
+            <section class="mb-4 v2-only" id="secNarrative">
+                <h5 class="fw-bold mb-3"><i class="bi bi-journal-text me-2 text-primary"></i>文字分析報告（9 大職場面向）</h5>
+                <div class="row g-3" id="narrativeCards"></div>
+            </section>
+
+            <!-- 7. 關係基本精神 -->
+            <section class="card mb-5 v2-only" id="secRel">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-primary"></i>關係基本精神（與四類人格互動指南）</h5>
+                    <p class="text-muted small mb-3">將受測者外在行為曲線與高 D / 高 I / 高 S / 高 C 典型對比，提供溝通與協作實務建議</p>
+                    <div class="row g-3" id="relCards"></div>
+                </div>
+            </section>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script type="module">
+        import { db, doc, getDoc, escapeHtml, checkCompanyAdvancedPermission } from './firebase-config.js';
+        import {
+            FACTOR_META,
+            computeFullAssessment,
+            computeStylePoint,
+            computeTraits,
+            describeProfileFactors,
+            buildTextualSections,
+            buildRelationshipKeynotes,
+            getGraphShape,
+            getPrimaryType
+        } from './disc-engine.js';
+
+        document.getElementById('btnBack').onclick = () => {
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = 'index.html';
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const recId = params.get('id') || '';
+
+        async function loadRecord() {
+            if (recId === 'latest') {
+                const cached = JSON.parse(sessionStorage.getItem('last_disc_record') || 'null');
+                if (cached) return cached;
+            }
+            if (recId) {
+                try {
+                    const snap = await getDoc(doc(db, 'records', recId));
+                    if (snap.exists()) return { id: snap.id, ...snap.data() };
+                } catch (err) {
+                    console.warn('Firestore 讀取失敗，嘗試讀取快取', err);
+                }
+            }
+            const cached = JSON.parse(sessionStorage.getItem('last_disc_record') || 'null');
+            if (cached && (!recId || cached.id === recId)) return cached;
+            return null;
+        }
+
+        function drawMiniProfileChart(canvasId, scores, color, dashed = false) {
+            new Chart(document.getElementById(canvasId).getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['D', 'I', 'S', 'C'],
+                    datasets: [
+                        {
+                            data: ['D', 'I', 'S', 'C'].map(k => scores[k]),
+                            borderColor: color,
+                            backgroundColor: color + '22',
+                            borderDash: dashed ? [5, 4] : [],
+                            borderWidth: 2.5,
+                            pointBackgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'],
+                            pointRadius: 4.5,
+                            fill: false,
+                            tension: 0.1
+                        },
+                        {
+                            data: [50, 50, 50, 50],
+                            borderColor: '#b2bec3',
+                            borderDash: [3, 3],
+                            borderWidth: 1,
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: 0, max: 100, ticks: { stepSize: 25, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function drawShiftChart(canvasId, shift) {
+            const vals = ['D', 'I', 'S', 'C'].map(k => shift[k]);
+            new Chart(document.getElementById(canvasId).getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['D', 'I', 'S', 'C'],
+                    datasets: [{
+                        data: vals,
+                        backgroundColor: vals.map(v => v >= 0 ? '#00b894' : '#e17055'),
+                        borderRadius: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { min: -60, max: 60, ticks: { stepSize: 30, font: { size: 10 } } } }
+                }
+            });
+        }
+
+        function renderStyleGridSvg(intPt, extPt) {
+            const size = 280;
+            const pad = 34;
+            const inner = size - pad * 2;
+            const cell = inner / 5;
+
+            const toX = openness => pad + (openness / 100) * inner;
+            const toY = assertiveness => pad + ((100 - assertiveness) / 100) * inner;
+
+            const ix = toX(intPt.openness), iy = toY(intPt.assertiveness);
+            const ex = toX(extPt.openness), ey = toY(extPt.assertiveness);
+
+            let cells = '';
+            for (let r = 0; r < 5; r++) {
+                for (let c = 0; c < 5; c++) {
+                    let fill = '#f8f9fa';
+                    if (r < 2 && c < 2) fill = '#fdecea';
+                    else if (r < 2 && c > 2) fill = '#fef9e7';
+                    else if (r > 2 && c < 2) fill = '#ebf5fb';
+                    else if (r > 2 && c > 2) fill = '#eafaf1';
+                    cells += `<rect x="${pad + c * cell}" y="${pad + r * cell}" width="${cell}" height="${cell}" fill="${fill}" stroke="#dfe6e9" stroke-width="1"/>`;
+                }
+            }
+
+            const svg = `
+<svg viewBox="0 0 ${size} ${size}" width="100%" style="max-width:320px;display:block;margin:0 auto">
+  <defs>
+    <marker id="arrowHead" markerWidth="8" markerHeight="8" refX="6" refY="3" orient="auto">
+      <path d="M0,0 L0,6 L6,3 z" fill="#6c5ce7"/>
+    </marker>
+  </defs>
+  ${cells}
+  <line x1="${pad + inner / 2}" y1="${pad}" x2="${pad + inner / 2}" y2="${pad + inner}" stroke="#95a5a6" stroke-width="1.2" stroke-dasharray="3,3"/>
+  <line x1="${pad}" y1="${pad + inner / 2}" x2="${pad + inner}" y2="${pad + inner / 2}" stroke="#95a5a6" stroke-width="1.2" stroke-dasharray="3,3"/>
+  <text x="${size / 2}" y="18" text-anchor="middle" font-size="11" font-weight="700" fill="#2c3e50">獨斷（主動）</text>
+  <text x="${size / 2}" y="${size - 10}" text-anchor="middle" font-size="11" font-weight="700" fill="#2c3e50">被動（沉穩）</text>
+  <text x="14" y="${size / 2}" text-anchor="middle" font-size="11" font-weight="700" fill="#2c3e50" transform="rotate(-90 14 ${size / 2})">制約（任務）</text>
+  <text x="${size - 12}" y="${size / 2}" text-anchor="middle" font-size="11" font-weight="700" fill="#2c3e50" transform="rotate(90 ${size - 12} ${size / 2})">開放（人際）</text>
+  <text x="${pad + 8}" y="${pad + 15}" font-size="11" font-weight="800" fill="#e74c3c">D</text>
+  <text x="${pad + inner - 14}" y="${pad + 15}" font-size="11" font-weight="800" fill="#f39c12">I</text>
+  <text x="${pad + 8}" y="${pad + inner - 6}" font-size="11" font-weight="800" fill="#2980b9">C</text>
+  <text x="${pad + inner - 14}" y="${pad + inner - 6}" font-size="11" font-weight="800" fill="#27ae60">S</text>
+  <line x1="${ix}" y1="${iy}" x2="${ex}" y2="${ey}" stroke="#6c5ce7" stroke-width="2" marker-end="url(#arrowHead)"/>
+  <circle cx="${ix}" cy="${iy}" r="7" fill="#fff" stroke="#00b894" stroke-width="3"/>
+  <circle cx="${ex}" cy="${ey}" r="7" fill="#6c5ce7" stroke="#fff" stroke-width="2"/>
+</svg>
+<div class="d-flex justify-content-center gap-3 small mt-2">
+  <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;border:2.5px solid #00b894;background:#fff"></span> 內在位置</span>
+  <span><span style="display:inline-block;width:10px;height:10px;border-radius:50%;background:#6c5ce7"></span> 外在位置</span>
+</div>`;
+            document.getElementById('styleGridSvg').innerHTML = svg;
+        }
+
+        function renderTraitScatter(traits) {
+            const quadColor = { '永久': '#27ae60', '潛在': '#2980b9', '暫時': '#f39c12', '非顯性': '#95a5a6' };
+            const quadrantPlugin = {
+                id: 'traitQuadrants',
+                beforeDraw(chart) {
+                    const { ctx, chartArea, scales: { x, y } } = chart;
+                    const mx = x.getPixelForValue(50), my = y.getPixelForValue(50);
+                    ctx.save();
+                    ctx.strokeStyle = '#b2bec3';
+                    ctx.setLineDash([4, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(mx, chartArea.top); ctx.lineTo(mx, chartArea.bottom);
+                    ctx.moveTo(chartArea.left, my); ctx.lineTo(chartArea.right, my);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.font = '600 11px sans-serif';
+                    ctx.fillStyle = '#636e72';
+                    ctx.fillText('潛在 (高內在/低外在)', chartArea.left + 8, chartArea.bottom - 10);
+                    ctx.fillText('永久 (高內在/高外在)', mx + 8, chartArea.top + 16);
+                    ctx.fillText('暫時 (低內在/高外在)', chartArea.left + 8, chartArea.top + 16);
+                    ctx.fillText('非顯性', mx + 8, chartArea.bottom - 10);
+                    ctx.restore();
+                },
+                afterDatasetsDraw(chart) {
+                    const { ctx } = chart;
+                    const meta = chart.getDatasetMeta(0);
+                    ctx.save();
+                    ctx.font = '700 10px sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    meta.data.forEach((pt, idx) => {
+                        ctx.fillStyle = '#fff';
+                        ctx.fillText(String(traits[idx].id), pt.x, pt.y);
+                    });
+                    ctx.restore();
+                }
+            };
+
+            new Chart(document.getElementById('traitScatterChart').getContext('2d'), {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: '行為特質',
+                        data: traits.map(t => ({ x: t.internalX, y: t.externalY, trait: t })),
+                        backgroundColor: traits.map(t => quadColor[t.quadrant]),
+                        pointRadius: 10,
+                        pointHoverRadius: 12
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: {
+                                label: ctx => {
+                                    const t = ctx.raw.trait;
+                                    return `${t.id}. ${t.name} [${t.quadrant}] — 內在:${t.internalX}, 外在:${t.externalY}`;
+                                }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: { min: 0, max: 100, title: { display: true, text: '內在傾向 (0–100)' } },
+                        y: { min: 0, max: 100, title: { display: true, text: '外在展現 (0–100)' } }
+                    }
+                },
+                plugins: [quadrantPlugin]
+            });
+
+            const listWrap = document.getElementById('traitQuadrantLists');
+            const defs = [
+                { q: '永久', cls: 'bg-success-subtle text-success', desc: '內外一致的穩定核心特質' },
+                { q: '暫時', cls: 'bg-warning-subtle text-warning-emphasis', desc: '因應目前工作刻意展現' },
+                { q: '潛在', cls: 'bg-primary-subtle text-primary', desc: '天賦存在但工作較少發揮' },
+                { q: '非顯性', cls: 'bg-light text-secondary', desc: '非該受測者主要驅動風格' }
+            ];
+            listWrap.innerHTML = defs.map(d => {
+                const items = traits.filter(t => t.quadrant === d.q);
+                return `<div class="col-12 col-sm-6">
+                  <div class="border rounded-3 p-2 h-100">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
+                      <span class="quadrant-badge ${d.cls}">${d.q}（${items.length}）</span>
+                    </div>
+                    <div class="small text-muted mb-2" style="font-size:0.75rem">${d.desc}</div>
+                    <div class="small">${items.length ? items.map(t => `<span class="badge bg-light text-dark border me-1 mb-1">${t.id}. ${escapeHtml(t.name)}</span>`).join('') : '<span class="text-muted">無</span>'}</div>
+                  </div>
+                </div>`;
+            }).join('');
+        }
+
+        function renderTensionChart(analysis) {
+            const { tension, adaptability, shift } = analysis;
+            const refLinePlugin = {
+                id: 'adaptRefLine',
+                afterDatasetsDraw(chart) {
+                    const { ctx, chartArea, scales: { x } } = chart;
+                    const px = x.getPixelForValue(adaptability);
+                    ctx.save();
+                    ctx.strokeStyle = '#6c5ce7';
+                    ctx.lineWidth = 2;
+                    ctx.setLineDash([5, 4]);
+                    ctx.beginPath();
+                    ctx.moveTo(px, chartArea.top);
+                    ctx.lineTo(px, chartArea.bottom);
+                    ctx.stroke();
+                    ctx.setLineDash([]);
+                    ctx.fillStyle = '#6c5ce7';
+                    ctx.font = '700 11px sans-serif';
+                    ctx.fillText(`調適力 ${adaptability}%`, Math.min(px + 6, chartArea.right - 76), chartArea.top + 14);
+                    ctx.restore();
+                }
+            };
+
+            new Chart(document.getElementById('tensionChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['D 支配', 'I 影響', 'S 穩健', 'C 謹慎'],
+                    datasets: [{
+                        label: '轉換幅度（壓力指標）',
+                        data: ['D', 'I', 'S', 'C'].map(k => tension.factors[k]),
+                        backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'],
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { min: 0, max: 100 } }
+                },
+                plugins: [refLinePlugin]
+            });
+
+            const pKey = tension.primaryFactor;
+            document.getElementById('tensionSummaryBox').innerHTML = `
+              <div class="small text-muted mb-1">整體調適力指標</div>
+              <div class="fs-3 fw-bold text-primary mb-2">${adaptability}%</div>
+              <div class="small mb-1"><strong>主要轉換因素：</strong>${pKey} ${FACTOR_META[pKey].name}（幅度 ${tension.maxTension}%）</div>
+              <div class="small mb-1"><strong>轉換方向：</strong>${shift[pKey] >= 0 ? '向上提升' : '向下收斂'}（${shift[pKey] >= 0 ? '+' : ''}${shift[pKey]}）</div>
+              <div class="small text-muted mt-2">
+                ${tension.avgTension >= 20
+                    ? '目前工作角色要求受測者付出較明顯的行為調適能量，建議主管適時確認任務壓力與角色期待。'
+                    : '內外在轉換幅度溫和，代表現職需求與受測者天然特質相當契合。'}
+              </div>`;
+        }
+
+        function buildAnalysisFromRecord(rec) {
+            if (rec.assessment_version === 'v2_ipsative' && Array.isArray(rec.answers) && rec.answers.length === 24) {
+                return computeFullAssessment(rec.answers);
+            }
+            if (rec.internal && rec.external && rec.summary) {
+                const shift = rec.shift || {
+                    D: rec.external.D - rec.internal.D,
+                    I: rec.external.I - rec.internal.I,
+                    S: rec.external.S - rec.internal.S,
+                    C: rec.external.C - rec.internal.C
+                };
+                const factors = { D: Math.abs(shift.D), I: Math.abs(shift.I), S: Math.abs(shift.S), C: Math.abs(shift.C) };
+                let pf = 'D', maxT = -1, sumT = 0;
+                for (const k of ['D', 'I', 'S', 'C']) { sumT += factors[k]; if (factors[k] > maxT) { maxT = factors[k]; pf = k; } }
+                const base = {
+                    assessment_version: 'v2_ipsative',
+                    internal: rec.internal,
+                    external: rec.external,
+                    summary: rec.summary,
+                    shift,
+                    graph_shape: rec.graph_shape || {
+                        internal: getGraphShape(rec.internal),
+                        external: getGraphShape(rec.external),
+                        summary: getGraphShape(rec.summary)
+                    },
+                    primary_type: rec.primary_type || getPrimaryType(rec.summary),
+                    adaptability: rec.adaptability ?? 75,
+                    tension: { factors, primaryFactor: pf, maxTension: maxT, avgTension: Math.round(sumT / 4) },
+                    style: {
+                        ...{ name: `${FACTOR_META[getPrimaryType(rec.summary)].name}（企業報告）`, summary: '', values: '效率與合作', seeks: '目標達成', avoids: '混亂低效', stress: '注意負荷平衡', attitude: '務實投入', strategy: '持續強化優勢' },
+                        internalPoint: computeStylePoint(rec.internal),
+                        externalPoint: computeStylePoint(rec.external)
+                    },
+                    traits: computeTraits(rec.internal, rec.external)
+                };
+                base.textualSections = buildTextualSections(base);
+                base.relationshipKeynotes = buildRelationshipKeynotes(rec.external);
+                return base;
+            }
+            return null;
+        }
+
+        async function renderReport(rec) {
+            document.getElementById('loadingBox').classList.add('d-none');
+            document.getElementById('reportRoot').classList.remove('d-none');
+
+            const d = rec.created_at ? new Date(rec.created_at) : null;
+            const dateStr = d && !isNaN(d) ? d.toLocaleString('zh-TW') : '—';
+            const comp = rec.company_name || rec.org || '一般個人測驗';
+
+            document.getElementById('repName').textContent = rec.taker_name || '未命名受測者';
+            document.getElementById('repMetaLine').textContent =
+                `所屬單位：${comp} ｜ 部門：${rec.dept || '—'} ｜ 職稱：${rec.title || '—'} ｜ 測驗時間：${dateStr}`;
+
+            const loggedUser = JSON.parse(sessionStorage.getItem('user') || 'null');
+            let allowAdvanced = true;
+            if (loggedUser?.role === 'admin') {
+                allowAdvanced = true;
+            } else if (loggedUser && (loggedUser.role === 'company' || loggedUser.role === 'influencer')) {
+                allowAdvanced = await checkCompanyAdvancedPermission(loggedUser);
+            } else if (rec.company_code || rec.referral_code) {
+                allowAdvanced = await checkCompanyAdvancedPermission(rec.company_code || rec.referral_code);
+            }
+
+            const analysis = buildAnalysisFromRecord(rec);
+            if (!analysis) {
+                // 舊版 v1 紀錄相容渲染
+                document.getElementById('legacyAlert').classList.remove('d-none');
+                document.querySelectorAll('.v2-only').forEach(el => el.classList.add('d-none'));
+                document.getElementById('sumChartCol').className = 'col-12 col-md-6 mx-auto';
+                const s = { D: Number(rec.d_score) || 0, I: Number(rec.i_score) || 0, S: Number(rec.s_score) || 0, C: Number(rec.c_score) || 0 };
+                const p = rec.primary_type || getPrimaryType(s);
+                document.getElementById('repStyleBadge').textContent = `主型：${p} ${FACTOR_META[p]?.name || ''}`;
+                document.getElementById('repShapeLine').textContent = `綜合圖形：${getGraphShape(s)}`;
+                document.getElementById('shapeSum').textContent = getGraphShape(s);
+                drawMiniProfileChart('chartSum', s, '#6c5ce7');
+                document.getElementById('seriesTableBody').innerHTML = `
+                  <tr><th>總結（舊版）</th><td>${s.D}</td><td>${s.I}</td><td>${s.S}</td><td>${s.C}</td><td><code>${getGraphShape(s)}</code></td></tr>`;
+                return;
+            }
+
+            if (!allowAdvanced) {
+                // 簡單分析權限模式
+                document.getElementById('simpleModeAlert').classList.remove('d-none');
+                document.querySelectorAll('.v2-only').forEach(el => el.classList.add('d-none'));
+                document.getElementById('seriesSubTitle').textContent = '簡單分析模式：顯示綜合 DISC 分數與主要人格行為概述';
+                document.getElementById('sumChartCol').className = 'col-12 col-md-6 mx-auto';
+                document.getElementById('repStyleBadge').textContent = analysis.style.name;
+                document.getElementById('repShapeLine').textContent = `綜合圖形：${analysis.graph_shape.summary}（簡單分析）`;
+                document.getElementById('shapeSum').textContent = analysis.graph_shape.summary;
+                drawMiniProfileChart('chartSum', analysis.summary, '#2c3e50', false);
+                document.getElementById('seriesTableBody').innerHTML = `
+                  <tr class="table-light fw-bold"><th>總結（綜合）</th><td>${analysis.summary.D}</td><td>${analysis.summary.I}</td><td>${analysis.summary.S}</td><td>${analysis.summary.C}</td><td><code>${analysis.graph_shape.summary}</code></td></tr>`;
+                const ov = analysis.textualSections[0];
+                const simpleBox = document.getElementById('simpleOverviewBox');
+                simpleBox.classList.remove('d-none');
+                simpleBox.innerHTML = `<div class="fw-bold mb-1">${escapeHtml(ov.title)}</div><div class="small text-muted">${escapeHtml(ov.content)}</div>`;
+                return;
+            }
+
+            document.getElementById('repStyleBadge').textContent = analysis.style.name;
+            document.getElementById('repShapeLine').textContent =
+                `綜合圖形：${analysis.graph_shape.summary} ｜ 調適力：${analysis.adaptability}%`;
+
+            // 1. DISC 系列分析表
+            document.getElementById('shapeInt').textContent = analysis.graph_shape.internal;
+            document.getElementById('shapeExt').textContent = analysis.graph_shape.external;
+            document.getElementById('shapeSum').textContent = analysis.graph_shape.summary;
+            drawMiniProfileChart('chartInt', analysis.internal, '#00b894', true);
+            drawMiniProfileChart('chartExt', analysis.external, '#6c5ce7', false);
+            drawMiniProfileChart('chartSum', analysis.summary, '#2c3e50', false);
+            drawShiftChart('chartShift', analysis.shift);
+
+            const fmtShift = v => (v >= 0 ? `+${v}` : `${v}`);
+            document.getElementById('seriesTableBody').innerHTML = `
+              <tr><th>內在（本我）</th><td>${analysis.internal.D}</td><td>${analysis.internal.I}</td><td>${analysis.internal.S}</td><td>${analysis.internal.C}</td><td><code>${analysis.graph_shape.internal}</code></td></tr>
+              <tr><th>外在（調適）</th><td>${analysis.external.D}</td><td>${analysis.external.I}</td><td>${analysis.external.S}</td><td>${analysis.external.C}</td><td><code>${analysis.graph_shape.external}</code></td></tr>
+              <tr class="table-light fw-bold"><th>總結（綜合）</th><td>${analysis.summary.D}</td><td>${analysis.summary.I}</td><td>${analysis.summary.S}</td><td>${analysis.summary.C}</td><td><code>${analysis.graph_shape.summary}</code></td></tr>
+              <tr><th>轉換（外－內）</th><td>${fmtShift(analysis.shift.D)}</td><td>${fmtShift(analysis.shift.I)}</td><td>${fmtShift(analysis.shift.S)}</td><td>${fmtShift(analysis.shift.C)}</td><td>調適力 ${analysis.adaptability}%</td></tr>`;
+
+            const breakdowns = [
+                { label: '內在分析表（自然反應）', scores: analysis.internal },
+                { label: '外在分析表（職場表現）', scores: analysis.external },
+                { label: '總結分析表（綜合特質）', scores: analysis.summary }
+            ];
+            document.getElementById('factorBreakdowns').innerHTML = breakdowns.map(b => {
+                const grp = describeProfileFactors(b.scores);
+                const renderList = arr => arr.length
+                    ? arr.map(x => `<div><strong style="color:${FACTOR_META[x.factor].color}">${x.factor} (${x.score}%)</strong>：${escapeHtml(x.summary)}</div>`).join('')
+                    : '<div class="text-muted">無</div>';
+                return `<div class="col-12 col-md-4">
+                  <div class="border rounded-3 p-3 h-100 small">
+                    <div class="fw-bold mb-2">${escapeHtml(b.label)}</div>
+                    <div class="text-success fw-semibold">高因數</div>${renderList(grp.high)}
+                    <div class="text-secondary fw-semibold mt-2">中間 / 臨界</div>${renderList(grp.mid)}
+                    <div class="text-muted fw-semibold mt-2">低因數</div>${renderList(grp.low)}
+                  </div>
+                </div>`;
+            }).join('');
+
+            // 2. 作風卡
+            renderStyleGridSvg(analysis.style.internalPoint, analysis.style.externalPoint);
+            document.getElementById('styleMetaTable').innerHTML = `
+              <tbody>
+                <tr><th style="width:110px">作風名稱</th><td class="fw-bold">${escapeHtml(analysis.style.name)}</td></tr>
+                <tr><th>核心概述</th><td>${escapeHtml(analysis.style.summary)}</td></tr>
+                <tr><th>重視價值</th><td>${escapeHtml(analysis.style.values)}</td></tr>
+                <tr><th>追尋目標</th><td>${escapeHtml(analysis.style.seeks)}</td></tr>
+                <tr><th>傾向迴避</th><td>${escapeHtml(analysis.style.avoids)}</td></tr>
+                <tr><th>壓力反應</th><td>${escapeHtml(analysis.style.stress)}</td></tr>
+                <tr><th>處事態度</th><td>${escapeHtml(analysis.style.attitude)}</td></tr>
+                <tr><th>建議策略</th><td>${escapeHtml(analysis.style.strategy)}</td></tr>
+              </tbody>`;
+
+            // 3. 16 項特性方格
+            renderTraitScatter(analysis.traits);
+
+            // 4. 分析表壓力
+            renderTensionChart(analysis);
+
+            // 5. 9 大文字報告
+            document.getElementById('narrativeCards').innerHTML = analysis.textualSections.map(sec => `
+              <div class="col-12 col-md-6">
+                <div class="card report-section-card h-100">
+                  <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-center mb-2">
+                      <h6 class="fw-bold mb-0">${escapeHtml(sec.title)}</h6>
+                      <span class="badge bg-light text-secondary border">來源：${escapeHtml(sec.source)}</span>
+                    </div>
+                    <p class="small mb-2">${escapeHtml(sec.content).replace(/\n/g, '<br>')}</p>
+                    <div class="small text-muted border-top pt-2" style="font-size:0.8rem">
+                      <i class="bi bi-arrow-left-right me-1"></i>${escapeHtml(sec.variation)}
+                    </div>
+                  </div>
+                </div>
+              </div>`).join('');
+
+            // 6. 關係基本精神
+            const relKeys = ['D', 'I', 'S', 'C'];
+            document.getElementById('relCards').innerHTML = relKeys.map(k => {
+                const item = analysis.relationshipKeynotes[k];
+                const m = FACTOR_META[k];
+                return `<div class="col-12 col-md-6">
+                  <div class="border rounded-3 p-3 h-100">
+                    <div class="d-flex align-items-center justify-content-between mb-2">
+                      <h6 class="fw-bold mb-0" style="color:${m.color}">與「${m.name} (${k})」相處</h6>
+                      <span class="badge bg-light text-dark border">${escapeHtml(item.target.name)}</span>
+                    </div>
+                    <div style="height:140px" class="mb-2"><canvas id="relChart_${k}"></canvas></div>
+                    <div class="small mb-1"><strong>總體說明：</strong>${escapeHtml(item.overall)}</div>
+                    <div class="small mb-1"><strong>溝通建議：</strong>${escapeHtml(item.communication)}</div>
+                    <div class="small mb-1"><strong>管理對焦：</strong>${escapeHtml(item.management)}</div>
+                    <div class="small text-muted"><strong>團隊角色：</strong>${escapeHtml(item.teamRole)}</div>
+                  </div>
+                </div>`;
+            }).join('');
+
+            relKeys.forEach(k => {
+                const item = analysis.relationshipKeynotes[k];
+                new Chart(document.getElementById(`relChart_${k}`).getContext('2d'), {
+                    type: 'line',
+                    data: {
+                        labels: ['D', 'I', 'S', 'C'],
+                        datasets: [
+                            {
+                                label: '受測者(外在)',
+                                data: ['D', 'I', 'S', 'C'].map(f => analysis.external[f]),
+                                borderColor: '#6c5ce7',
+                                borderWidth: 2.5,
+                                pointRadius: 3.5,
+                                tension: 0.1
+                            },
+                            {
+                                label: `典型高${k}`,
+                                data: ['D', 'I', 'S', 'C'].map(f => item.target.scores[f]),
+                                borderColor: FACTOR_META[k].color,
+                                borderDash: [4, 4],
+                                borderWidth: 2,
+                                pointRadius: 3,
+                                tension: 0.1
+                            }
+                        ]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { position: 'bottom', labels: { boxWidth: 12, font: { size: 10 } } } },
+                        scales: { y: { min: 0, max: 100, ticks: { stepSize: 50, font: { size: 9 } } } }
+                    }
+                });
+            });
+        }
+
+        async function init() {
+            const record = await loadRecord();
+            if (!record) {
+                document.getElementById('loadingBox').classList.add('d-none');
+                document.getElementById('errorBox').classList.remove('d-none');
+            } else {
+                await renderReport(record);
+            }
+        }
+        init();
+    </script>
+</body>
+
+</html>

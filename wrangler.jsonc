@@ -1,0 +1,9 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "disc-2025",
+  "compatibility_date": "2026-11-19",
+  "assets": {
+    "directory": "./dist",
+    "html_handling": "drop-trailing-slash"
+  }
+}

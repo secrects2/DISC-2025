@@ -1,0 +1,614 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <title>DISC 工作分析表報告</title>
+    <link rel="icon" type="image/png" href="favicon.png">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .jpr-header {
+            background: #fff;
+            border-bottom: 1px solid #ecf0f1;
+            padding: 0.8rem 0;
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .trait-row {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            margin-bottom: 0.7rem;
+        }
+
+        .trait-name {
+            width: 64px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            text-align: right;
+            flex-shrink: 0;
+        }
+
+        .trait-track {
+            flex: 1;
+            height: 16px;
+            background: #eef2f7;
+            border: 1px solid #dce3ec;
+            border-radius: 6px;
+            overflow: hidden;
+        }
+
+        .trait-fill {
+            height: 100%;
+            border-radius: 4px;
+            transition: width 0.35s ease;
+        }
+
+        .trait-lvl {
+            width: 56px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-dark);
+            flex-shrink: 0;
+        }
+
+        .tick-marks {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.72rem;
+            color: var(--text-muted);
+            margin-top: -4px;
+            margin-bottom: 8px;
+        }
+
+        .sidebar-preview-card {
+            background: linear-gradient(135deg, #f3f6fb, #eaf0f8);
+            border: 1px solid #dce4f0;
+            border-radius: 14px;
+        }
+
+        .blank-q-card {
+            border: 1px solid #dee2e6;
+            border-radius: 10px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 0.6rem;
+            break-inside: avoid;
+        }
+
+        @media print {
+            .no-print {
+                display: none !important;
+            }
+
+            body {
+                background: #fff !important;
+            }
+
+            .card {
+                box-shadow: none !important;
+                border: 1px solid #dee2e6 !important;
+            }
+
+            .container {
+                max-width: 100% !important;
+                padding: 0 !important;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <header class="jpr-header no-print">
+        <div class="container d-flex align-items-center justify-content-between">
+            <span style="font-weight:700;color:var(--accent);font-size:1.05rem">
+                <i class="bi bi-briefcase-fill me-1"></i>DISC 工作分析表
+            </span>
+            <div class="d-flex align-items-center gap-2">
+                <button class="btn btn-sm btn-primary" onclick="window.print()">
+                    <i class="bi bi-printer me-1"></i>列印 / 匯出 PDF
+                </button>
+                <button class="btn btn-sm btn-outline-secondary" id="btnBack">
+                    <i class="bi bi-arrow-left me-1"></i>返回工作分析列表
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container py-4" style="max-width:1080px">
+        <div id="loadingBox" class="card">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-2" role="status"></div>
+                <div class="text-muted">正在載入工作分析表...</div>
+            </div>
+        </div>
+
+        <div id="errorBox" class="card d-none">
+            <div class="card-body text-center py-5 text-danger" id="errorText">無法載入工作分析表。</div>
+        </div>
+
+        <!-- 空白紙本工作問卷模式 -->
+        <div id="blankQuestRoot" class="d-none"></div>
+
+        <!-- 工作分析表報告與編輯模式 -->
+        <div id="jprRoot" class="d-none">
+            <div class="row g-4">
+                <!-- 左主欄：報告 / 編輯分頁 -->
+                <div class="col-12 col-lg-8">
+                    <ul class="nav nav-tabs mb-3 no-print" id="jprTabs" role="tablist">
+                        <li class="nav-item">
+                            <button class="nav-link active fw-semibold" id="tabReportBtn" data-bs-toggle="tab"
+                                data-bs-target="#tabReportPane" type="button">報告</button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link fw-semibold" id="tabEditBtn" data-bs-toggle="tab"
+                                data-bs-target="#tabEditPane" type="button">編輯</button>
+                        </li>
+                    </ul>
+
+                    <div class="tab-content">
+                        <!-- A) 報告頁籤 -->
+                        <div class="tab-pane fade show active" id="tabReportPane">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <div class="d-flex flex-wrap justify-content-between align-items-start gap-2 mb-3">
+                                        <div>
+                                            <div class="small text-muted">工作分析表名稱</div>
+                                            <h4 class="fw-bold mb-1" id="repTitle">—</h4>
+                                            <span class="badge bg-light text-dark border">類別：<span id="repCategory">—</span></span>
+                                        </div>
+                                        <div class="text-end">
+                                            <div class="small text-muted">分析表形式</div>
+                                            <div class="fs-5 fw-bold text-primary" id="repShape">—</div>
+                                        </div>
+                                    </div>
+                                    <div class="row g-3 align-items-center">
+                                        <div class="col-12 col-md-6">
+                                            <div style="height:210px"><canvas id="jprMainChart"></canvas></div>
+                                        </div>
+                                        <div class="col-12 col-md-6">
+                                            <table class="table table-sm table-bordered text-center mb-0">
+                                                <thead class="table-light">
+                                                    <tr>
+                                                        <th style="color:var(--d-color)">D 支配</th>
+                                                        <th style="color:var(--i-color)">I 影響</th>
+                                                        <th style="color:var(--s-color)">S 穩健</th>
+                                                        <th style="color:var(--c-color)">C 謹慎</th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody id="repScoreRow"></tbody>
+                                            </table>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-3"><i class="bi bi-bar-chart-steps me-2 text-primary"></i>工作分析表特性分析</h5>
+                                    <div id="traitGroupsWrap"></div>
+                                </div>
+                            </div>
+
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-3"><i class="bi bi-file-text me-2 text-primary"></i>文字解析</h5>
+                                    <div id="jobNarrativeWrap"></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- B) 編輯頁籤（工作分析表編輯器） -->
+                        <div class="tab-pane fade" id="tabEditPane">
+                            <div class="card mb-4">
+                                <div class="card-body">
+                                    <h5 class="fw-bold mb-3">DISC 因數（主維度 0–100）</h5>
+                                    <div id="editorMainSliders" class="mb-4"></div>
+
+                                    <h5 class="fw-bold mb-2">DISC 次因數（雙極性行為張力微調）</h5>
+                                    <p class="small text-muted mb-3">微調兩項相鄰行為特質在該職務中的相對比重</p>
+                                    <div id="editorSubSliders"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 右側欄：工作分析表選項 -->
+                <div class="col-12 col-lg-4">
+                    <div class="card sidebar-preview-card sticky-top" style="top:76px">
+                        <div class="card-body">
+                            <h6 class="fw-bold mb-3"><i class="bi bi-sliders me-1 text-primary"></i>工作分析表選項</h6>
+
+                            <div class="bg-white rounded-3 p-3 border mb-3">
+                                <div class="row g-2 align-items-center">
+                                    <div class="col-6">
+                                        <div style="height:125px"><canvas id="jprMiniChart"></canvas></div>
+                                    </div>
+                                    <div class="col-6">
+                                        <ul class="list-unstyled small mb-0" id="sideKeywords"></ul>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="mb-2">
+                                <label class="form-label small fw-semibold mb-1">名稱</label>
+                                <input class="form-control form-control-sm" id="edName">
+                            </div>
+                            <div class="mb-3">
+                                <label class="form-label small fw-semibold mb-1">類別 / 部門</label>
+                                <input class="form-control form-control-sm" id="edCategory" placeholder="例如：業務、研發、管理">
+                            </div>
+
+                            <div class="d-grid gap-2 no-print">
+                                <button class="btn btn-sm btn-primary" id="btnSaveChanges" disabled>
+                                    <i class="bi bi-save me-1"></i>保存更改
+                                </button>
+                                <button class="btn btn-sm btn-outline-secondary" id="btnRevertChanges" disabled>
+                                    取消所有更改
+                                </button>
+                                <button class="btn btn-sm btn-outline-primary" id="btnPrintReport" onclick="window.print()">
+                                    <i class="bi bi-printer me-1"></i>列印報告
+                                </button>
+                                <button class="btn btn-sm btn-outline-danger d-none" id="btnDeleteJob">
+                                    <i class="bi bi-trash me-1"></i>刪除工作分析表
+                                </button>
+                            </div>
+                            <div id="saveMsg" class="small text-center mt-2"></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+    <script type="module">
+        import {
+            db, doc, getDoc, addDoc, updateDoc, deleteDoc, collection,
+            escapeHtml, checkCompanyAdvancedPermission
+        } from './firebase-config.js';
+        import {
+            FACTOR_META,
+            JOB_QUESTIONNAIRE,
+            DISC_SUBFACTORS,
+            deriveSubFactors,
+            analyzeJobProfile
+        } from './disc-engine.js';
+
+        document.getElementById('btnBack').onclick = () => {
+            if (window.history.length > 1) window.history.back();
+            else window.location.href = 'company.html';
+        };
+
+        const params = new URLSearchParams(window.location.search);
+        const jobId = params.get('id') || '';
+        const isPreview = params.get('preview') === '1';
+        const isBlankQ = params.get('blank_questionnaire') === '1';
+        const openEditTab = params.get('tab') === 'edit';
+
+        let originalState = null;
+        let workingState = null;
+        let mainChart = null;
+        let miniChart = null;
+
+        function showError(msg) {
+            document.getElementById('loadingBox').classList.add('d-none');
+            document.getElementById('errorBox').classList.remove('d-none');
+            document.getElementById('errorText').textContent = msg;
+        }
+
+        function renderBlankQuestionnaire() {
+            document.getElementById('loadingBox').classList.add('d-none');
+            const root = document.getElementById('blankQuestRoot');
+            root.classList.remove('d-none');
+            root.innerHTML = `
+              <div class="card mb-3">
+                <div class="card-body">
+                  <h4 class="fw-bold mb-1">DISC 工作分析表問卷（空白紙本）</h4>
+                  <p class="small text-muted mb-2">填寫說明：請針對目標職位的實際工作要求，在每題四個描述中勾選 <strong>1 個「高（最符合）」</strong> 與 <strong>1 個「低（最不符合）」</strong>。</p>
+                  <div class="row g-2 small">
+                    <div class="col-6">職位名稱：__________________________</div>
+                    <div class="col-3">類別／部門：______________</div>
+                    <div class="col-3">填表日期：____/____/____</div>
+                  </div>
+                </div>
+              </div>
+              <div class="row g-2">
+                ${JOB_QUESTIONNAIRE.map((q, idx) => `
+                  <div class="col-12 col-md-6">
+                    <div class="blank-q-card bg-white">
+                      <div class="fw-bold small mb-2">${idx + 1}. ${escapeHtml(q.stem)}</div>
+                      <table class="table table-sm table-borderless mb-0 small">
+                        <thead><tr class="text-muted"><th style="width:72%">行為要求</th><th class="text-center">高</th><th class="text-center">低</th></tr></thead>
+                        <tbody>
+                          ${q.options.map(o => `<tr><td>${escapeHtml(o.text)}</td><td class="text-center">☐</td><td class="text-center">☐</td></tr>`).join('')}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>`).join('')}
+              </div>`;
+        }
+
+        function markDirty() {
+            const changed = JSON.stringify(workingState) !== JSON.stringify(originalState);
+            document.getElementById('btnSaveChanges').disabled = !changed && Boolean(jobId);
+            document.getElementById('btnRevertChanges').disabled = !changed;
+        }
+
+        function renderAnalysisViews() {
+            const analysis = analyzeJobProfile(workingState.target, {
+                name: workingState.name,
+                subFactors: workingState.subFactors
+            });
+
+            document.getElementById('repTitle').textContent = workingState.name || '未命名工作分析表';
+            document.getElementById('repCategory').textContent = workingState.category || '一般';
+            document.getElementById('repShape').textContent = analysis.shape;
+
+            document.getElementById('repScoreRow').innerHTML = `
+              <tr class="fw-bold fs-6">
+                <td>${analysis.scores.D}</td>
+                <td>${analysis.scores.I}</td>
+                <td>${analysis.scores.S}</td>
+                <td>${analysis.scores.C}</td>
+              </tr>`;
+
+            // 12 項特性條圖
+            document.getElementById('traitGroupsWrap').innerHTML = analysis.traitGroups.map(grp => `
+              <div class="mb-3">
+                <div class="fw-bold small mb-2" style="color:${grp.color}">${escapeHtml(grp.title)}</div>
+                ${grp.items.map(it => `
+                  <div class="trait-row">
+                    <div class="trait-name">${escapeHtml(it.name)}</div>
+                    <div class="trait-track">
+                      <div class="trait-fill" style="width:${it.score}%;background:${grp.color}"></div>
+                    </div>
+                    <div class="trait-lvl">${escapeHtml(it.level)} <span class="text-muted small">(${it.score})</span></div>
+                  </div>`).join('')}
+              </div>`).join('');
+
+            // 文字解析
+            document.getElementById('jobNarrativeWrap').innerHTML = analysis.textualSections.map(sec => `
+              <div class="mb-3">
+                <div class="fw-bold small text-primary mb-1">${escapeHtml(sec.title)}</div>
+                <p class="small text-secondary mb-0" style="line-height:1.7">${escapeHtml(sec.body)}</p>
+              </div>`).join('');
+
+            // 右側 5 個關鍵字
+            document.getElementById('sideKeywords').innerHTML = analysis.keywords
+                .map(k => `<li class="mb-1"><i class="bi bi-dot text-primary"></i>${escapeHtml(k)}</li>`)
+                .join('');
+
+            // 主圖表與迷你圖表
+            const dataArr = ['D', 'I', 'S', 'C'].map(k => analysis.scores[k]);
+            if (mainChart) mainChart.destroy();
+            mainChart = new Chart(document.getElementById('jprMainChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['D', 'I', 'S', 'C'],
+                    datasets: [
+                        { label: '目標需求', data: dataArr, borderColor: '#2980b9', backgroundColor: 'rgba(41,128,185,0.12)', fill: true, borderWidth: 3, pointBackgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], pointRadius: 5, tension: 0.1 },
+                        { label: '中線', data: [50, 50, 50, 50], borderColor: '#b2bec3', borderDash: [4, 4], borderWidth: 1, pointRadius: 0 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, ticks: { stepSize: 25 } } } }
+            });
+
+            if (miniChart) miniChart.destroy();
+            miniChart = new Chart(document.getElementById('jprMiniChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['D', 'I', 'S', 'C'],
+                    datasets: [{ data: dataArr, borderColor: '#2980b9', borderWidth: 2.5, pointRadius: 3.5, tension: 0.1 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { min: 0, max: 100, display: false }, x: { ticks: { font: { size: 10 } } } } }
+            });
+        }
+
+        function buildEditors() {
+            const mainWrap = document.getElementById('editorMainSliders');
+            const factorLabels = {
+                D: ['低支配', '高支配'],
+                I: ['低影響', '高影響'],
+                S: ['低穩定', '高穩定'],
+                C: ['低謹慎', '高謹慎']
+            };
+            mainWrap.innerHTML = ['D', 'I', 'S', 'C'].map(k => `
+              <div class="mb-3">
+                <div class="d-flex justify-content-between small fw-semibold mb-1">
+                  <span>${factorLabels[k][0]}</span>
+                  <span style="color:${FACTOR_META[k].color}">${k} 目標值：<strong id="edMainVal_${k}">${workingState.target[k]}</strong></span>
+                  <span>${factorLabels[k][1]}</span>
+                </div>
+                <input type="range" class="form-range" min="5" max="95" value="${workingState.target[k]}" id="edMainRange_${k}">
+                <div class="tick-marks"><span>0</span><span>15</span><span>35</span><span>50</span><span>65</span><span>85</span><span>100</span></div>
+              </div>`).join('');
+
+            ['D', 'I', 'S', 'C'].forEach(k => {
+                document.getElementById(`edMainRange_${k}`).addEventListener('input', e => {
+                    workingState.target[k] = Number(e.target.value);
+                    document.getElementById(`edMainVal_${k}`).textContent = workingState.target[k];
+                    workingState.subFactors = deriveSubFactors(workingState.target);
+                    DISC_SUBFACTORS.forEach(sf => {
+                        const el = document.getElementById(`edSubRange_${sf.key}`);
+                        if (el) el.value = workingState.subFactors[sf.key];
+                    });
+                    renderAnalysisViews();
+                    markDirty();
+                });
+            });
+
+            const subWrap = document.getElementById('editorSubSliders');
+            subWrap.innerHTML = DISC_SUBFACTORS.map(sf => `
+              <div class="mb-2">
+                <div class="d-flex justify-content-between small fw-semibold">
+                  <span>${escapeHtml(sf.left)}</span>
+                  <span class="text-muted" id="edSubVal_${sf.key}">${workingState.subFactors[sf.key]}</span>
+                  <span>${escapeHtml(sf.right)}</span>
+                </div>
+                <input type="range" class="form-range" min="0" max="100" value="${workingState.subFactors[sf.key]}" id="edSubRange_${sf.key}">
+              </div>`).join('');
+
+            DISC_SUBFACTORS.forEach(sf => {
+                document.getElementById(`edSubRange_${sf.key}`).addEventListener('input', e => {
+                    workingState.subFactors[sf.key] = Number(e.target.value);
+                    document.getElementById(`edSubVal_${sf.key}`).textContent = workingState.subFactors[sf.key];
+                    renderAnalysisViews();
+                    markDirty();
+                });
+            });
+        }
+
+        function syncSidebarInputs() {
+            document.getElementById('edName').value = workingState.name || '';
+            document.getElementById('edCategory').value = workingState.category || '';
+        }
+
+        document.getElementById('edName').addEventListener('input', e => {
+            workingState.name = e.target.value;
+            renderAnalysisViews();
+            markDirty();
+        });
+        document.getElementById('edCategory').addEventListener('input', e => {
+            workingState.category = e.target.value;
+            renderAnalysisViews();
+            markDirty();
+        });
+
+        document.getElementById('btnRevertChanges').onclick = () => {
+            workingState = structuredClone(originalState);
+            syncSidebarInputs();
+            buildEditors();
+            renderAnalysisViews();
+            markDirty();
+            document.getElementById('saveMsg').textContent = '';
+        };
+
+        document.getElementById('btnSaveChanges').onclick = async () => {
+            const name = (workingState.name || '').trim();
+            if (!name) { alert('工作分析表名稱不可為空'); return; }
+            const btn = document.getElementById('btnSaveChanges');
+            const msg = document.getElementById('saveMsg');
+            btn.disabled = true;
+            msg.textContent = '儲存中...';
+            try {
+                if (jobId) {
+                    await updateDoc(doc(db, 'job_profiles', jobId), {
+                        name,
+                        category: (workingState.category || '').trim() || '一般',
+                        target: workingState.target,
+                        subFactors: workingState.subFactors,
+                        updated_at: new Date().toISOString()
+                    });
+                    originalState = structuredClone(workingState);
+                    markDirty();
+                    msg.className = 'small text-center mt-2 text-success';
+                    msg.textContent = '✓ 變更已保存';
+                } else {
+                    const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+                    const scopeCode = workingState.scope_code || user?.company_code || user?.referral_code || '__admin__';
+                    const docRef = await addDoc(collection(db, 'job_profiles'), {
+                        name,
+                        category: (workingState.category || '').trim() || '一般',
+                        target: workingState.target,
+                        subFactors: workingState.subFactors,
+                        scope_code: scopeCode,
+                        created_at: new Date().toISOString()
+                    });
+                    window.location.replace(`job-report.html?id=${encodeURIComponent(docRef.id)}`);
+                }
+            } catch (err) {
+                msg.className = 'small text-center mt-2 text-danger';
+                msg.textContent = '儲存失敗：' + err.message;
+                btn.disabled = false;
+            }
+        };
+
+        document.getElementById('btnDeleteJob').onclick = async () => {
+            if (!jobId) return;
+            if (!confirm(`確定要刪除工作分析表「${workingState.name}」嗎？`)) return;
+            try {
+                await deleteDoc(doc(db, 'job_profiles', jobId));
+                alert('已刪除');
+                if (window.history.length > 1) window.history.back();
+                else window.location.href = 'company.html';
+            } catch (err) {
+                alert('刪除失敗：' + err.message);
+            }
+        };
+
+        async function init() {
+            const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+            if (!user) {
+                showError('請先登入管理員或公司戶帳號再檢視工作分析表。');
+                return;
+            }
+            const allowed = user.role === 'admin' || await checkCompanyAdvancedPermission(user);
+            if (!allowed) {
+                showError('貴公司目前為「簡單分析」方案，工作分析表與深度編輯功能需由平台管理員開通進階分析權限。');
+                return;
+            }
+
+            if (isBlankQ) {
+                renderBlankQuestionnaire();
+                return;
+            }
+
+            let loaded = null;
+            if (jobId) {
+                try {
+                    const snap = await getDoc(doc(db, 'job_profiles', jobId));
+                    if (snap.exists()) loaded = { id: snap.id, ...snap.data() };
+                } catch (err) {
+                    console.warn('讀取工作分析表失敗', err);
+                }
+            } else if (isPreview) {
+                loaded = JSON.parse(sessionStorage.getItem('preview_job_profile') || 'null');
+            }
+
+            if (!loaded) {
+                showError('找不到指定的工作分析表資料。');
+                return;
+            }
+
+            const target = loaded.target || { D: 50, I: 50, S: 50, C: 50 };
+            originalState = {
+                name: loaded.name || '未命名職缺',
+                category: loaded.category || '一般',
+                scope_code: loaded.scope_code || '',
+                target: { D: Number(target.D) || 50, I: Number(target.I) || 50, S: Number(target.S) || 50, C: Number(target.C) || 50 },
+                subFactors: loaded.subFactors ? { ...loaded.subFactors } : deriveSubFactors(target)
+            };
+            workingState = structuredClone(originalState);
+
+            document.getElementById('loadingBox').classList.add('d-none');
+            document.getElementById('jprRoot').classList.remove('d-none');
+
+            if (jobId) {
+                document.getElementById('btnDeleteJob').classList.remove('d-none');
+            } else {
+                document.getElementById('btnSaveChanges').disabled = false;
+                document.getElementById('btnSaveChanges').innerHTML = '<i class="bi bi-bookmark-plus me-1"></i>儲存為新工作分析表';
+            }
+
+            syncSidebarInputs();
+            buildEditors();
+            renderAnalysisViews();
+            markDirty();
+
+            if (openEditTab) {
+                new bootstrap.Tab(document.getElementById('tabEditBtn')).show();
+            }
+        }
+
+        init();
+    </script>
+</body>
+
+</html>

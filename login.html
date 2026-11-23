@@ -4,9 +4,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>DISC 人格測驗 — 登入</title>
+    <title>DISC 企業測驗系統 — 登入</title>
     <link rel="icon" type="image/png" href="favicon.png">
-    <meta name="description" content="DISC 人格特質測驗系統登入">
+    <meta name="description" content="DISC 企業人格特質測驗系統登入">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
     <link rel="stylesheet" href="styles.css">
@@ -94,9 +94,9 @@
     <div class="login-wrapper position-relative" style="z-index:1">
         <div class="card login-card">
             <div class="card-body text-center">
-                <div class="login-icon"><i class="bi bi-person-circle"></i></div>
-                <h4 class="fw-bold mb-1">DISC 人格測驗</h4>
-                <p class="text-muted mb-4" style="font-size:0.88rem">瞭解你的行為風格，釋放你的天賦</p>
+                <div class="login-icon"><i class="bi bi-building-check"></i></div>
+                <h4 class="fw-bold mb-1">DISC 企業測驗系統</h4>
+                <p class="text-muted mb-4" style="font-size:0.88rem">公司戶與平台管理員登入入口</p>
                 <form id="loginForm" novalidate>
                     <div class="form-floating mb-3">
                         <input type="text" class="form-control" id="username" placeholder="帳號" autocomplete="username"
@@ -114,9 +114,14 @@
                     </button>
                 </form>
                 <div id="loginError" class="text-danger mt-3" style="font-size:0.88rem;min-height:1.4em"></div>
+                <div class="mt-2">
+                    <a href="index.html" class="text-decoration-none small text-muted">
+                        <i class="bi bi-arrow-left me-1"></i>返回測驗首頁
+                    </a>
+                </div>
             </div>
         </div>
-        <p class="login-footer">© 2025 DISC Assessment System</p>
+        <p class="login-footer">© 2025-2026 DISC 企業測驗系統</p>
     </div>
 
     <script type="module">
@@ -127,12 +132,16 @@
         const btnLabel = btnLogin.querySelector('.btn-label');
         const errorEl = document.getElementById('loginError');
 
+        function redirectByRole(userData) {
+            if (userData.role === 'admin') window.location.href = 'query.html';
+            else if (userData.role === 'company' || userData.role === 'influencer') window.location.href = 'company.html';
+            else window.location.href = 'index.html';
+        }
+
         /* 已登入跳轉 */
         const existing = JSON.parse(sessionStorage.getItem('user') || 'null');
         if (existing) {
-            if (existing.role === 'admin') window.location.href = 'query.html';
-            else if (existing.role === 'influencer') window.location.href = 'influencer.html';
-            else window.location.href = 'index.html';
+            redirectByRole(existing);
         }
 
         /* 登入 */
@@ -162,15 +171,12 @@
                 const data = { id: docSnap.id, ...docSnap.data() };
 
                 if (!data.is_active) {
-                    showError('❌ 帳號已被停用，請聯絡管理員');
+                    showError('❌ 帳號已被停用，請聯絡平台管理員');
                     return;
                 }
 
                 sessionStorage.setItem('user', JSON.stringify(data));
-
-                if (data.role === 'admin') window.location.href = 'query.html';
-                else if (data.role === 'influencer') window.location.href = 'influencer.html';
-                else window.location.href = 'index.html';
+                redirectByRole(data);
 
             } catch (err) {
                 console.error(err);

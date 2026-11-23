@@ -1,4 +1,7 @@
 {
+  "scripts": {
+    "build": "node -e \"const fs=require('fs');fs.mkdirSync('dist',{recursive:true});for(const f of ['index.html','login.html','company.html','influencer.html','query.html','report.html','job-report.html','disc-engine.js','enterprise-suite.js','styles.css','firebase-config.js','favicon.png'])fs.copyFileSync(f,'dist/'+f);\""
+  },
   "devDependencies": {
     "pg": "^8.20.0"
   },

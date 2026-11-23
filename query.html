@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <title>DISC 管理後臺</title>
+    <title>DISC 平台總管理後台</title>
     <link rel="icon" type="image/png" href="favicon.png">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet">
@@ -21,11 +21,11 @@
 
         .stat-card {
             text-align: center;
-            padding: 1.2rem
+            padding: 1.1rem
         }
 
         .stat-card .num {
-            font-size: 2rem;
+            font-size: 1.9rem;
             font-weight: 800;
             line-height: 1.2
         }
@@ -43,7 +43,7 @@
 
         .section-title {
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.05rem;
             display: flex;
             align-items: center;
             gap: 8px
@@ -78,41 +78,58 @@
 <body>
     <header class="admin-header">
         <div class="container d-flex align-items-center justify-content-between">
-            <span style="font-weight:700;color:var(--accent);font-size:1.05rem"><i
-                    class="bi bi-shield-check me-1"></i>DISC 管理後臺</span>
+            <span style="font-weight:700;color:var(--accent);font-size:1.05rem">
+                <i class="bi bi-shield-check me-1"></i>DISC 平台總管理後台
+            </span>
             <div class="d-flex align-items-center gap-2">
                 <small class="text-muted d-none d-sm-inline" id="adminName"></small>
-                <button class="btn btn-sm btn-outline-secondary" id="btnLogout"><i
-                        class="bi bi-box-arrow-right me-1"></i>登出</button>
+                <a href="index.html" class="btn btn-sm btn-outline-primary" target="_blank" rel="noopener">
+                    <i class="bi bi-box-arrow-up-right me-1"></i>測驗首頁
+                </a>
+                <button class="btn btn-sm btn-outline-secondary" id="btnLogout">
+                    <i class="bi bi-box-arrow-right me-1"></i>登出
+                </button>
             </div>
         </div>
     </header>
 
     <main class="container py-4">
         <!-- 統計 -->
-        <div class="row g-3 mb-4">
-            <div class="col-6 col-md-3">
+        <div class="row g-3 mb-4 row-cols-2 row-cols-md-6">
+            <div class="col">
                 <div class="card stat-card">
                     <div class="num text-primary" id="statTotal">--</div>
                     <div class="label">總測驗次數</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col">
+                <div class="card stat-card">
+                    <div class="num" style="color:#5b21b6" id="statCompanies">--</div>
+                    <div class="label">公司戶數量</div>
+                </div>
+            </div>
+            <div class="col">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--d-color)" id="statD">--</div>
                     <div class="label">D 型人數</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--i-color)" id="statI">--</div>
                     <div class="label">I 型人數</div>
                 </div>
             </div>
-            <div class="col-6 col-md-3">
+            <div class="col">
                 <div class="card stat-card">
                     <div class="num" style="color:var(--s-color)" id="statS">--</div>
                     <div class="label">S 型人數</div>
+                </div>
+            </div>
+            <div class="col">
+                <div class="card stat-card">
+                    <div class="num" style="color:var(--c-color)" id="statC">--</div>
+                    <div class="label">C 型人數</div>
                 </div>
             </div>
         </div>
@@ -120,28 +137,73 @@
         <!-- 分佈圖 -->
         <div class="card mb-4">
             <div class="card-body">
-                <h6 class="section-title"><i class="bi bi-pie-chart-fill text-muted"></i>DISC 型別分佈</h6>
+                <h6 class="section-title mb-3"><i class="bi bi-pie-chart-fill text-muted"></i>全平台 DISC 型別分佈</h6>
                 <div style="max-width:360px;margin:0 auto"><canvas id="pieChart"></canvas></div>
             </div>
         </div>
 
-        <!-- 查詢 -->
+        <!-- 公司戶與帳號管理 -->
+        <div class="card mb-4">
+            <div class="card-body">
+                <div class="d-flex flex-wrap align-items-center justify-content-between gap-2 mb-3">
+                    <h6 class="section-title mb-0"><i class="bi bi-buildings-fill text-muted"></i>公司戶與帳號管理</h6>
+                    <div class="d-flex gap-2">
+                        <select class="form-select form-select-sm" id="filterRole" style="width:auto">
+                            <option value="all">全部帳號</option>
+                            <option value="company">僅公司戶</option>
+                            <option value="admin">僅管理員</option>
+                        </select>
+                        <button class="btn btn-sm btn-primary" id="btnAddUser">
+                            <i class="bi bi-plus-lg me-1"></i>新增公司戶 / 帳號
+                        </button>
+                        <button class="btn btn-sm btn-outline-secondary" id="btnLoadUsers" title="重新載入">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-hover mb-0" id="tblUsers">
+                        <thead>
+                            <tr>
+                                <th>帳號</th>
+                                <th>公司名稱</th>
+                                <th>公司代碼</th>
+                                <th>聯絡人</th>
+                                <th>角色</th>
+                                <th>進階分析</th>
+                                <th>狀態</th>
+                                <th>密碼</th>
+                                <th>操作</th>
+                            </tr>
+                        </thead>
+                        <tbody></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 測驗記錄查詢 -->
         <div class="card mb-4">
             <div class="card-body">
                 <h6 class="section-title mb-3"><i class="bi bi-search text-muted"></i>測驗記錄查詢</h6>
                 <div class="row g-2 mb-3">
-                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fName" placeholder="姓名">
+                    <div class="col-12 col-md-3">
+                        <select class="form-select form-select-sm" id="fCompany">
+                            <option value="">全部公司 / 個人</option>
+                            <option value="__personal__">僅一般個人測驗</option>
+                        </select>
                     </div>
-                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fRef" placeholder="推薦碼">
-                    </div>
-                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fFrom" type="date">
-                    </div>
-                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fTo" type="date"></div>
+                    <div class="col-6 col-md-2"><input class="form-control form-control-sm" id="fName" placeholder="姓名"></div>
+                    <div class="col-6 col-md-2"><input class="form-control form-control-sm" id="fRef" placeholder="公司代碼"></div>
+                    <div class="col-6 col-md-2"><input class="form-control form-control-sm" id="fFrom" type="date" title="起始日期"></div>
+                    <div class="col-6 col-md-3"><input class="form-control form-control-sm" id="fTo" type="date" title="結束日期"></div>
                 </div>
                 <div class="d-flex gap-2">
                     <button class="btn btn-primary btn-sm" id="btnSearch"><i class="bi bi-search me-1"></i>查詢</button>
-                    <button class="btn btn-outline-secondary btn-sm" id="btnExport"><i
-                            class="bi bi-download me-1"></i>匯出 CSV</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnResetFilter">重設</button>
+                    <button class="btn btn-outline-secondary btn-sm" id="btnExport">
+                        <i class="bi bi-download me-1"></i>匯出 CSV
+                    </button>
                 </div>
             </div>
         </div>
@@ -158,68 +220,78 @@
                     </table>
                 </div>
             </div>
-            <div class="card-footer bg-transparent border-0 py-2 px-3"><small class="text-muted" id="meta"></small>
+            <div class="card-footer bg-transparent border-0 py-2 px-3">
+                <small class="text-muted" id="meta"></small>
             </div>
         </div>
 
-        <!-- 使用者管理 -->
-        <div class="card mb-4">
-            <div class="card-body">
-                <div class="d-flex align-items-center justify-content-between mb-3">
-                    <h6 class="section-title mb-0"><i class="bi bi-people-fill text-muted"></i>使用者帳號管理</h6>
-                    <div class="d-flex gap-2">
-                        <button class="btn btn-sm btn-primary" id="btnAddUser"><i
-                                class="bi bi-plus-lg me-1"></i>新增</button>
-                        <button class="btn btn-sm btn-outline-secondary" id="btnLoadUsers"><i
-                                class="bi bi-arrow-clockwise"></i></button>
-                    </div>
-                </div>
-                <div class="table-responsive">
-                    <table class="table table-hover mb-0" id="tblUsers">
-                        <thead>
-                            <tr>
-                                <th>帳號</th>
-                                <th>姓名</th>
-                                <th>角色</th>
-                                <th>推薦碼</th>
-                                <th>狀態</th>
-                                <th>密碼</th>
-                                <th>操作</th>
-                            </tr>
-                        </thead>
-                        <tbody></tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
+        <!-- 企業進階分析（工作配對 / 1對1關係 / 團隊分析） -->
+        <div id="enterpriseSuiteContainer"></div>
 
-        <!-- 新增使用者 Modal -->
+        <!-- 新增公司戶 / 使用者 Modal -->
         <div class="modal fade" id="addUserModal" tabindex="-1">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h6 class="modal-title fw-bold">新增使用者</h6><button type="button" class="btn-close"
-                            data-bs-dismiss="modal"></button>
+                        <h6 class="modal-title fw-bold">新增公司戶 / 帳號</h6>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
-                        <div class="mb-2"><label class="form-label">帳號 <span class="text-danger">*</span></label><input
-                                class="form-control" id="nuUser"></div>
-                        <div class="mb-2"><label class="form-label">密碼 <span class="text-danger">*</span></label><input
-                                class="form-control" id="nuPass"></div>
-                        <div class="mb-2"><label class="form-label">姓名</label><input class="form-control" id="nuName">
-                        </div>
-                        <div class="mb-2"><label class="form-label">角色</label>
+                        <div class="mb-2">
+                            <label class="form-label">角色</label>
                             <select class="form-select" id="nuRole">
+                                <option value="company" selected>公司戶（企業主體）</option>
+                                <option value="admin">平台總管理員</option>
                                 <option value="user">一般使用者</option>
-                                <option value="influencer">網紅</option>
-                                <option value="admin">管理員</option>
                             </select>
                         </div>
-                        <div class="mb-2"><label class="form-label">部門</label><input class="form-control" id="nuDept">
+                        <div id="companyFields">
+                            <div class="mb-2">
+                                <label class="form-label">公司名稱 <span class="text-danger">*</span></label>
+                                <input class="form-control" id="nuCompanyName" placeholder="例如：星辰科技有限公司">
+                            </div>
+                            <div class="mb-2">
+                                <label class="form-label">公司代碼 <span class="text-danger">*</span></label>
+                                <div class="input-group">
+                                    <input class="form-control text-uppercase" id="nuCompanyCode" placeholder="例如：STAR2026（限英數與底線）">
+                                    <button class="btn btn-outline-secondary" type="button" id="btnGenCode">自動產生</button>
+                                </div>
+                                <div class="form-text">對方公司員工將使用此代碼或專屬連結作答。</div>
+                            </div>
+                            <div class="form-check form-switch mb-2">
+                                <input class="form-check-input" type="checkbox" id="nuAllowAdvanced">
+                                <label class="form-check-label small" for="nuAllowAdvanced">
+                                    開通進階分析權限（深度報告、工作配對、關係與團隊分析）
+                                </label>
+                            </div>
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">登入帳號 <span class="text-danger">*</span></label>
+                            <input class="form-control" id="nuUser" placeholder="例如：star_hr">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">登入密碼 <span class="text-danger">*</span></label>
+                            <input class="form-control" id="nuPass">
+                        </div>
+                        <div class="mb-2">
+                            <label class="form-label">聯絡人姓名</label>
+                            <input class="form-control" id="nuName">
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-6">
+                                <label class="form-label">電話</label>
+                                <input class="form-control" id="nuPhone">
+                            </div>
+                            <div class="col-6">
+                                <label class="form-label">Email</label>
+                                <input class="form-control" id="nuEmail">
+                            </div>
                         </div>
                         <div id="nuError" class="text-danger mt-2" style="font-size:0.85rem"></div>
                     </div>
-                    <div class="modal-footer"><button class="btn btn-primary" id="btnSaveUser">儲存</button></div>
+                    <div class="modal-footer">
+                        <button class="btn btn-primary" id="btnSaveUser">建立帳號</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -231,38 +303,72 @@
         import {
             db, collection, doc,
             addDoc, getDocs, updateDoc,
-            query, where, orderBy
+            escapeHtml
         } from './firebase-config.js';
-        /* ===== 許可權 ===== */
-        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
-        if (!user || user.role !== 'admin') { alert('需要管理者許可權'); window.location.href = 'login.html'; }
-        document.getElementById('adminName').textContent = user.name || user.username;
-        document.getElementById('btnLogout').onclick = () => { sessionStorage.removeItem('user'); window.location.href = 'login.html'; };
+        import { mountEnterpriseSuite } from './enterprise-suite.js';
 
-        /* ===== 查詢 ===== */
+        /* ===== 權限 ===== */
+        const user = JSON.parse(sessionStorage.getItem('user') || 'null');
+        if (!user || user.role !== 'admin') {
+            alert('需要管理者許可權');
+            window.location.href = 'login.html';
+        }
+        document.getElementById('adminName').textContent = user?.name || user?.username || '';
+        document.getElementById('btnLogout').onclick = () => {
+            sessionStorage.removeItem('user');
+            window.location.href = 'login.html';
+        };
+
+        const baseDir = window.location.origin + window.location.pathname.replace(/[^/]*$/, '');
         let allRecords = [];
+        let allUsers = [];
+
+        const suite = mountEnterpriseSuite({
+            containerId: 'enterpriseSuiteContainer',
+            getRecords: () => allRecords,
+            getScopeCode: () => document.getElementById('fCompany').value || '__admin__',
+            getScopeName: () => '平台總管理後台'
+        });
+
+        /* ===== 查詢測驗記錄 ===== */
         document.getElementById('btnSearch').onclick = loadRecords;
+        document.getElementById('btnResetFilter').onclick = () => {
+            document.getElementById('fCompany').value = '';
+            document.getElementById('fName').value = '';
+            document.getElementById('fRef').value = '';
+            document.getElementById('fFrom').value = '';
+            document.getElementById('fTo').value = '';
+            loadRecords();
+        };
 
         async function loadRecords() {
             try {
-                const q = query(collection(db, 'records'), orderBy('created_at', 'desc'));
-                const snapshot = await getDocs(q);
+                const snapshot = await getDocs(collection(db, 'records'));
                 let rows = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+                rows.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
 
-                // 前端過濾（Firestore 無 ilike）
+                const compFilter = document.getElementById('fCompany').value;
                 const name = document.getElementById('fName').value.trim().toLowerCase();
-                const ref = document.getElementById('fRef').value.trim();
+                const ref = document.getElementById('fRef').value.trim().toLowerCase();
                 const from = document.getElementById('fFrom').value;
                 const to = document.getElementById('fTo').value;
+
+                if (compFilter === '__personal__') {
+                    rows = rows.filter(r => !(r.company_code || r.referral_code));
+                } else if (compFilter) {
+                    rows = rows.filter(r => (r.company_code || r.referral_code || '') === compFilter);
+                }
                 if (name) rows = rows.filter(r => (r.taker_name || '').toLowerCase().includes(name));
-                if (ref) rows = rows.filter(r => r.referral_code === ref);
-                if (from) rows = rows.filter(r => r.created_at >= from);
-                if (to) rows = rows.filter(r => r.created_at <= to + 'T23:59:59');
+                if (ref) rows = rows.filter(r => (r.company_code || r.referral_code || '').toLowerCase().includes(ref));
+                if (from) rows = rows.filter(r => (r.created_at || '') >= from);
+                if (to) rows = rows.filter(r => (r.created_at || '') <= to + 'T23:59:59');
 
                 allRecords = rows;
                 renderTable(allRecords);
                 updateStats(allRecords);
+                suite.refresh();
             } catch (error) {
+                console.error(error);
                 alert('查詢失敗：' + error.message);
             }
         }
@@ -271,27 +377,45 @@
             const thead = document.querySelector('#tbl thead tr');
             const tbody = document.querySelector('#tbl tbody');
             thead.innerHTML = ''; tbody.innerHTML = '';
-            if (!rows.length) { thead.innerHTML = '<th class="text-center text-muted">暫無資料</th>'; document.getElementById('meta').textContent = ''; return; }
+            if (!rows.length) {
+                thead.innerHTML = '<th class="text-center text-muted py-4">暫無資料</th>';
+                document.getElementById('meta').textContent = '';
+                return;
+            }
 
-            thead.innerHTML = '<th>時間</th><th>姓名</th><th>電話</th><th>組織</th><th>部門</th><th>推薦碼</th><th>D</th><th>I</th><th>S</th><th>C</th><th>主型</th><th>圖表</th>';
-            rows.forEach((r, i) => {
-                const d = new Date(r.created_at);
-                const colors = { D: 'var(--d-color)', I: 'var(--i-color)', S: 'var(--s-color)', C: 'var(--c-color)' };
+            thead.innerHTML = '<th>時間</th><th>所屬公司</th><th>代碼</th><th>姓名</th><th>部門</th><th>職稱</th><th>電話</th><th>D</th><th>I</th><th>S</th><th>C</th><th>主型</th><th>圖表</th><th>報告</th>';
+            const colors = { D: 'var(--d-color)', I: 'var(--i-color)', S: 'var(--s-color)', C: 'var(--c-color)' };
+            rows.forEach(r => {
+                const d = r.created_at ? new Date(r.created_at) : null;
+                const timeStr = d && !isNaN(d)
+                    ? `${d.toLocaleDateString('zh-TW')} ${d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}`
+                    : '—';
+                const code = r.company_code || r.referral_code || '';
+                const compLabel = r.company_name || r.org || (code ? code : '一般個人');
                 const tr = document.createElement('tr');
                 tr.innerHTML = `
-      <td class="text-nowrap">${d.toLocaleDateString('zh-TW')} ${d.toLocaleTimeString('zh-TW', { hour: '2-digit', minute: '2-digit' })}</td>
-      <td>${r.taker_name || ''}</td><td>${r.taker_phone || ''}</td><td>${r.org || ''}</td><td>${r.dept || ''}</td>
-      <td><code>${r.referral_code || '—'}</code></td>
-      <td><strong style="color:${colors.D}">${r.d_score}</strong></td>
-      <td><strong style="color:${colors.I}">${r.i_score}</strong></td>
-      <td><strong style="color:${colors.S}">${r.s_score}</strong></td>
-      <td><strong style="color:${colors.C}">${r.c_score}</strong></td>
-      <td><span class="badge" style="background:${colors[r.primary_type] || '#999'};color:#fff">${r.primary_type || '?'}</span></td>
-      <td></td>`;
+      <td class="text-nowrap">${escapeHtml(timeStr)}</td>
+      <td>${escapeHtml(compLabel)}</td>
+      <td><code>${escapeHtml(code || '—')}</code></td>
+      <td>${escapeHtml(r.taker_name || '')}</td>
+      <td>${escapeHtml(r.dept || '—')}</td>
+      <td>${escapeHtml(r.title || '—')}</td>
+      <td>${escapeHtml(r.taker_phone || '')}</td>
+      <td><strong style="color:${colors.D}">${Number(r.d_score) || 0}</strong></td>
+      <td><strong style="color:${colors.I}">${Number(r.i_score) || 0}</strong></td>
+      <td><strong style="color:${colors.S}">${Number(r.s_score) || 0}</strong></td>
+      <td><strong style="color:${colors.C}">${Number(r.c_score) || 0}</strong></td>
+      <td><span class="badge" style="background:${colors[r.primary_type] || '#999'};color:#fff">${escapeHtml(r.primary_type || '?')}</span></td>
+      <td></td>
+      <td class="text-nowrap"><a class="btn btn-sm btn-outline-primary" href="report.html?id=${encodeURIComponent(r.id)}" target="_blank" rel="noopener"><i class="bi bi-file-earmark-bar-graph me-1"></i>查看</a></td>`;
                 const canvas = document.createElement('canvas'); canvas.className = 'mini-chart';
-                tr.lastElementChild.appendChild(canvas);
+                tr.children[12].appendChild(canvas);
                 tbody.appendChild(tr);
-                new Chart(canvas.getContext('2d'), { type: 'bar', data: { labels: ['D', 'I', 'S', 'C'], datasets: [{ data: [r.d_score, r.i_score, r.s_score, r.c_score], backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderRadius: 3 }] }, options: { responsive: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } } } });
+                new Chart(canvas.getContext('2d'), {
+                    type: 'bar',
+                    data: { labels: ['D', 'I', 'S', 'C'], datasets: [{ data: [r.d_score, r.i_score, r.s_score, r.c_score], backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderRadius: 3 }] },
+                    options: { responsive: false, plugins: { legend: { display: false } }, scales: { x: { display: false }, y: { display: false, min: 0, max: 100 } } }
+                });
             });
             document.getElementById('meta').textContent = `共 ${rows.length} 筆`;
         }
@@ -299,10 +423,16 @@
         function updateStats(rows) {
             document.getElementById('statTotal').textContent = rows.length;
             let d = 0, i = 0, s = 0, c = 0;
-            rows.forEach(r => { if (r.primary_type === 'D') d++; else if (r.primary_type === 'I') i++; else if (r.primary_type === 'S') s++; else c++; });
+            rows.forEach(r => {
+                if (r.primary_type === 'D') d++;
+                else if (r.primary_type === 'I') i++;
+                else if (r.primary_type === 'S') s++;
+                else if (r.primary_type === 'C') c++;
+            });
             document.getElementById('statD').textContent = d;
             document.getElementById('statI').textContent = i;
             document.getElementById('statS').textContent = s;
+            document.getElementById('statC').textContent = c;
             renderPie([d, i, s, c]);
         }
 
@@ -310,99 +440,242 @@
         function renderPie(data) {
             const ctx = document.getElementById('pieChart').getContext('2d');
             if (pieInst) pieInst.destroy();
-            pieInst = new Chart(ctx, { type: 'doughnut', data: { labels: ['D 支配型', 'I 影響型', 'S 穩健型', 'C 分析型'], datasets: [{ data, backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderWidth: 3, borderColor: '#fff' }] }, options: { responsive: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } } } });
+            pieInst = new Chart(ctx, {
+                type: 'doughnut',
+                data: { labels: ['D 支配型', 'I 影響型', 'S 穩健型', 'C 分析型'], datasets: [{ data, backgroundColor: ['#e74c3c', '#f39c12', '#27ae60', '#2980b9'], borderWidth: 3, borderColor: '#fff' }] },
+                options: { responsive: true, cutout: '55%', plugins: { legend: { position: 'bottom', labels: { padding: 16, usePointStyle: true, font: { size: 12 } } } } }
+            });
         }
 
         /* ===== CSV ===== */
         document.getElementById('btnExport').onclick = () => {
-            const rows = [...document.querySelectorAll('#tbl tr')].map(tr => [...tr.children].map(td => `"${String(td.textContent).replace(/"/g, '""')}"`).join(','));
+            const rows = [...document.querySelectorAll('#tbl tr')].map(tr =>
+                [...tr.children].map(td => `"${String(td.textContent).replace(/"/g, '""')}"`).join(',')
+            );
             const blob = new Blob(['\uFEFF' + rows.join('\n')], { type: 'text/csv;charset=utf-8;' });
-            const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = `disc_records_${new Date().toISOString().slice(0, 10)}.csv`; a.click();
+            const a = document.createElement('a');
+            a.href = URL.createObjectURL(blob);
+            a.download = `disc_records_${new Date().toISOString().slice(0, 10)}.csv`;
+            a.click();
         };
 
-        /* ===== 使用者管理 ===== */
+        /* ===== 公司戶與帳號管理 ===== */
         const tblBody = document.querySelector('#tblUsers tbody');
         document.getElementById('btnLoadUsers').onclick = loadUsers;
+        document.getElementById('filterRole').onchange = () => renderUsers(allUsers);
 
         async function loadUsers() {
             try {
-                const q = query(collection(db, 'users'), orderBy('created_at', 'desc'));
-                const snapshot = await getDocs(q);
+                const snapshot = await getDocs(collection(db, 'users'));
                 const rows = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-                renderUsers(rows);
+                rows.sort((a, b) => (b.created_at || '').localeCompare(a.created_at || ''));
+                allUsers = rows;
+
+                const companies = rows.filter(u => u.role === 'company' || u.role === 'influencer');
+                document.getElementById('statCompanies').textContent = companies.length;
+                populateCompanyFilter(companies);
+                renderUsers(allUsers);
             } catch (error) {
-                alert('載入失敗');
+                console.error(error);
+                alert('載入帳號失敗：' + error.message);
             }
         }
 
+        function populateCompanyFilter(companies) {
+            const sel = document.getElementById('fCompany');
+            const prev = sel.value;
+            const opts = companies
+                .map(c => {
+                    const code = c.company_code || c.referral_code || '';
+                    if (!code) return '';
+                    const label = `${c.company_name || c.name || c.username} (${code})`;
+                    return `<option value="${escapeHtml(code)}">${escapeHtml(label)}</option>`;
+                })
+                .filter(Boolean)
+                .join('');
+            sel.innerHTML = '<option value="">全部公司 / 個人</option><option value="__personal__">僅一般個人測驗</option>' + opts;
+            sel.value = prev;
+        }
+
         function renderUsers(rows) {
+            const filter = document.getElementById('filterRole').value;
+            const filtered = rows.filter(u => {
+                if (filter === 'company') return u.role === 'company' || u.role === 'influencer';
+                if (filter === 'admin') return u.role === 'admin';
+                return true;
+            });
+
             tblBody.innerHTML = '';
-            rows.forEach(u => {
+            if (!filtered.length) {
+                tblBody.innerHTML = '<tr><td colspan="9" class="text-center text-muted py-4">暫無符合條件的帳號</td></tr>';
+                return;
+            }
+
+            filtered.forEach(u => {
                 const tr = document.createElement('tr');
-                const roleMap = { admin: '管理員', influencer: '網紅', user: '使用者' };
-                const roleClass = u.role === 'admin' ? 'badge-admin' : u.role === 'influencer' ? 'bg-warning text-dark' : 'badge-user';
+                const isCompany = u.role === 'company' || u.role === 'influencer';
+                const roleMap = { admin: '管理員', company: '公司戶', influencer: '公司戶(舊)', user: '一般使用者' };
+                const roleClass = u.role === 'admin' ? 'badge-admin' : isCompany ? 'badge-company' : 'badge-user';
+                const code = u.company_code || u.referral_code || '';
+                const compName = u.company_name || (isCompany ? (u.name || '—') : '—');
+                const quizUrl = code ? `${baseDir}?company=${encodeURIComponent(code)}` : '';
+                const advBtn = u.role === 'admin'
+                    ? '<span class="badge bg-light text-dark border">完整權限</span>'
+                    : isCompany
+                        ? `<button class="btn btn-sm ${u.allow_advanced ? 'btn-success' : 'btn-outline-secondary'} btn-toggle-adv" title="切換進階分析權限">${u.allow_advanced ? '✓ 已開通' : '僅簡易'}</button>`
+                        : '<span class="text-muted">—</span>';
+
                 tr.innerHTML = `
-      <td class="fw-medium">${u.username}</td>
-      <td>${u.name || '—'}</td>
-      <td><span class="badge ${roleClass}">${roleMap[u.role] || u.role}</span></td>
-      <td><code>${u.referral_code || '—'}</code></td>
+      <td class="fw-medium">${escapeHtml(u.username)}</td>
+      <td>${escapeHtml(compName)}</td>
+      <td><code>${escapeHtml(code || '—')}</code></td>
+      <td>${escapeHtml(u.name || '—')}</td>
+      <td><span class="badge ${roleClass}">${escapeHtml(roleMap[u.role] || u.role)}</span></td>
+      <td class="text-nowrap">${advBtn}</td>
       <td>${u.is_active ? '<span class="text-success">✓ 啟用</span>' : '<span class="text-danger">✗ 停用</span>'}</td>
-      <td>${u.role !== 'admin' ? `<input type="text" class="form-control form-control-sm user-pw-input" value="${u.password || ''}">` :
+      <td>${u.role !== 'admin' ? `<input type="text" class="form-control form-control-sm user-pw-input" value="${escapeHtml(u.password || '')}">` :
                         '<span class="text-muted">—</span>'}</td>
-      <td class="text-nowrap">${u.role !== 'admin' ? `<button class="btn btn-sm btn-primary btn-save me-1" title="儲存密碼"><i class="bi bi-check-lg"></i></button>
+      <td class="text-nowrap">${u.role !== 'admin' ? `
+        ${quizUrl ? `<button class="btn btn-sm btn-outline-primary btn-copy-link me-1" title="複製公司專屬測驗連結"><i class="bi bi-link-45deg"></i></button>` : ''}
+        <button class="btn btn-sm btn-primary btn-save me-1" title="儲存密碼"><i class="bi bi-check-lg"></i></button>
         <button class="btn btn-sm ${u.is_active ? 'btn-outline-danger' : 'btn-outline-success'} btn-toggle" title="${u.is_active ? '停用' : '啟用'}">
         <i class="bi bi-${u.is_active ? 'x-circle' : 'check-circle'}"></i></button>` : ''}</td>`;
 
                 if (u.role !== 'admin') {
-                    // 儲存密碼
+                    const btnAdv = tr.querySelector('.btn-toggle-adv');
+                    if (btnAdv) btnAdv.onclick = async () => {
+                        btnAdv.disabled = true;
+                        try {
+                            await updateDoc(doc(db, 'users', u.id), { allow_advanced: !u.allow_advanced });
+                            loadUsers();
+                        } catch (e) {
+                            alert('權限更新失敗：' + e.message);
+                            btnAdv.disabled = false;
+                        }
+                    };
+                    const btnCopyLink = tr.querySelector('.btn-copy-link');
+                    if (btnCopyLink && quizUrl) {
+                        btnCopyLink.onclick = () => {
+                            navigator.clipboard.writeText(quizUrl).then(() => {
+                                btnCopyLink.innerHTML = '<i class="bi bi-check-lg"></i>';
+                                setTimeout(() => { btnCopyLink.innerHTML = '<i class="bi bi-link-45deg"></i>'; }, 1500);
+                            });
+                        };
+                    }
+
                     const btnSave = tr.querySelector('.btn-save');
-                    const inp = tr.querySelector('input');
-                    if (btnSave) btnSave.onclick = async () => {
-                        const pw = inp.value.trim(); if (!pw) { alert('密碼不可空'); return; }
+                    const inp = tr.querySelector('.user-pw-input');
+                    if (btnSave && inp) btnSave.onclick = async () => {
+                        const pw = inp.value.trim();
+                        if (!pw) { alert('密碼不可為空'); return; }
                         btnSave.disabled = true;
                         try {
                             await updateDoc(doc(db, 'users', u.id), { password: pw });
-                            btnSave.innerHTML = '<i class="bi bi-check-circle-fill text-success"></i>'; setTimeout(() => btnSave.innerHTML = '<i class="bi bi-check-lg"></i>', 1500);
-                        } catch (e) { alert('更新失敗'); }
+                            btnSave.innerHTML = '<i class="bi bi-check-circle-fill"></i>';
+                            setTimeout(() => btnSave.innerHTML = '<i class="bi bi-check-lg"></i>', 1500);
+                        } catch (e) {
+                            alert('更新失敗：' + e.message);
+                        }
                         btnSave.disabled = false;
                     };
-                    // 啟用/停用
+
+                    const btnToggle = tr.querySelector('.btn-toggle');
                     if (btnToggle) btnToggle.onclick = async () => {
                         try {
                             await updateDoc(doc(db, 'users', u.id), { is_active: !u.is_active });
                             loadUsers();
-                        } catch (e) { alert('操作失敗'); }
+                        } catch (e) {
+                            alert('操作失敗：' + e.message);
+                        }
                     };
                 }
                 tblBody.appendChild(tr);
             });
         }
 
-        /* ===== 新增使用者 ===== */
+        /* ===== 新增公司戶 / 使用者 ===== */
         const addModal = new bootstrap.Modal(document.getElementById('addUserModal'));
-        document.getElementById('btnAddUser').onclick = () => addModal.show();
+        const nuRole = document.getElementById('nuRole');
+        const companyFields = document.getElementById('companyFields');
+
+        function toggleCompanyFields() {
+            companyFields.classList.toggle('d-none', nuRole.value !== 'company');
+        }
+        nuRole.addEventListener('change', toggleCompanyFields);
+        toggleCompanyFields();
+
+        function genCode() {
+            const prefix = (document.getElementById('nuUser').value.trim().toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 4)) || 'COMP';
+            return `${prefix}_${Math.random().toString(36).slice(2, 6).toUpperCase()}`;
+        }
+        document.getElementById('btnGenCode').onclick = () => {
+            document.getElementById('nuCompanyCode').value = genCode();
+        };
+
+        document.getElementById('btnAddUser').onclick = () => {
+            document.getElementById('nuError').textContent = '';
+            addModal.show();
+        };
+
         document.getElementById('btnSaveUser').onclick = async () => {
+            const role = nuRole.value;
             const username = document.getElementById('nuUser').value.trim();
             const password = document.getElementById('nuPass').value.trim();
             const name = document.getElementById('nuName').value.trim();
-            const role = document.getElementById('nuRole').value;
-            const dept = document.getElementById('nuDept').value.trim();
-            if (!username || !password) { document.getElementById('nuError').textContent = '帳號和密碼必填'; return; }
+            const phone = document.getElementById('nuPhone').value.trim();
+            const email = document.getElementById('nuEmail').value.trim();
+            const companyName = document.getElementById('nuCompanyName').value.trim();
+            let companyCode = document.getElementById('nuCompanyCode').value.trim().toUpperCase();
+            const allowAdvanced = role === 'company' ? document.getElementById('nuAllowAdvanced').checked : false;
+            const errEl = document.getElementById('nuError');
+            errEl.textContent = '';
 
-            // 網紅自動生成推薦碼
-            const referral_code = role === 'influencer' ? username.toLowerCase().replace(/[^a-z0-9]/g, '') + '_' + Math.random().toString(36).slice(2, 8) : null;
+            if (!username || !password) {
+                errEl.textContent = '登入帳號和密碼必填';
+                return;
+            }
+            if (allUsers.some(u => u.username === username)) {
+                errEl.textContent = '此登入帳號已存在';
+                return;
+            }
+            if (role === 'company') {
+                if (!companyName) { errEl.textContent = '公司戶請填寫公司名稱'; return; }
+                if (!companyCode) companyCode = genCode();
+                if (!/^[A-Z0-9_-]+$/.test(companyCode)) {
+                    errEl.textContent = '公司代碼僅能包含英文、數字、底線(_)或連字號(-)';
+                    return;
+                }
+                if (allUsers.some(u => (u.company_code || u.referral_code || '').toUpperCase() === companyCode)) {
+                    errEl.textContent = `公司代碼「${companyCode}」已被使用，請更換`;
+                    return;
+                }
+            } else {
+                companyCode = null;
+            }
 
             try {
                 await addDoc(collection(db, 'users'), {
-                    username, password, name, role, dept, referral_code,
+                    username,
+                    password,
+                    name,
+                    phone,
+                    email,
+                    role,
+                    company_name: role === 'company' ? companyName : '',
+                    company_code: companyCode,
+                    referral_code: companyCode,
+                    allow_advanced: allowAdvanced,
                     is_active: true,
                     created_at: new Date().toISOString()
                 });
                 addModal.hide();
-                document.getElementById('nuUser').value = ''; document.getElementById('nuPass').value = ''; document.getElementById('nuName').value = ''; document.getElementById('nuDept').value = '';
+                ['nuUser', 'nuPass', 'nuName', 'nuPhone', 'nuEmail', 'nuCompanyName', 'nuCompanyCode'].forEach(id => {
+                    document.getElementById(id).value = '';
+                });
+                document.getElementById('nuAllowAdvanced').checked = false;
                 loadUsers();
             } catch (error) {
-                document.getElementById('nuError').textContent = '建立失敗：' + error.message;
+                errEl.textContent = '建立失敗：' + error.message;
             }
         };
 
